@@ -64,6 +64,18 @@ In Claude Code, invoke `/auto-au-applications` with the same request. Provide yo
 
 The skill creates `profile.json`, a local JSON tracker and a folder per application. Both agents can share the same chosen data directory. You can request CSV tracker exports as needed.
 
+## Connect Google Sheets
+
+Enable an authenticated Google Sheets integration with edit access in whichever host you use. Open the same job-search workspace in that host and say:
+
+```text
+Link my application tracker to <Google Sheet URL>.
+```
+
+Or say “Create a Google Sheet for my applications.” Then paste a job link and say “Apply to this role and track it.” A specific apply request authorises submission to that role. If you want to inspect the form first, say “Fill this one for review.”
+
+The agent keeps one row per application, including the employer, role, status and verified public listing URL when available. Personal documents, private portal links and receipts stay in your application files. If the Sheets connection fails, use “Sync pending applications to my Google Sheet” once access returns. Say “Stop syncing to Google Sheets” to disconnect this workspace. [Detailed tracking workflow](../auto-au-applications/references/google-sheets.md)
+
 ## First batch
 
 After reviewing the shortlist:

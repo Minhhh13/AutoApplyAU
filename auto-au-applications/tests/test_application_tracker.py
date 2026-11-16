@@ -151,6 +151,21 @@ class ApplicationTrackerTests(unittest.TestCase):
         self.assertEqual("submitted", confirmed["application"]["status"])
         self.assertEqual(5, len(confirmed["application"]["history"]))
 
+    def test_only_first_submission_claim_succeeds_and_stale_updates_cannot_rewind(self):
+        identifier = self.add()["application"]["id"]
+        tracker.update(self.directory, identifier, "filled", expect_status="shortlisted")
+        tracker.update(self.directory, identifier, "submission-pending", expect_status="filled")
+        with self.assertRaisesRegex(tracker.TrackerError, "already pending"):
+            tracker.update(self.directory, identifier, "submission-pending")
+        with self.assertRaisesRegex(tracker.TrackerError, "Expected filled"):
+            tracker.update(self.directory, identifier, "submission-pending", expect_status="filled")
+        tracker.update(self.directory, identifier, "submitted", confirmation="Application received",
+                       expect_status="submission-pending")
+        tracker.update(self.directory, identifier, "interview", expect_status="submitted")
+        with self.assertRaisesRegex(tracker.TrackerError, "found interview"):
+            tracker.update(self.directory, identifier, "submitted", expect_status="submission-pending")
+        self.assertEqual("interview", tracker.read_store(self.directory)["applications"][0]["status"])
+
     def test_prior_interrupted_attempt_can_be_imported_without_invented_progress(self):
         identifier = self.add()["application"]["id"]
         with self.assertRaises(tracker.TrackerError):
@@ -204,6 +219,134 @@ class ApplicationTrackerTests(unittest.TestCase):
             code = tracker.main(["list", "--directory", str(self.directory / "missing")])
         self.assertEqual(2, code)
         self.assertIn("error", json.loads(errors.getvalue()))
+
+    def test_sheet_binding_preserves_old_tracker_and_defers_unchanged_history(self):
+        old = self.add()["application"]["id"]
+        old_store = (self.directory / tracker.STORE_NAME).read_bytes()
+        unbound = tracker.sheet_pending(self.directory)
+        self.assertIsNone(unbound["binding"])
+        self.assertEqual([], unbound["rows"])
+        self.assertEqual(old_store, (self.directory / tracker.STORE_NAME).read_bytes())
+        bound = tracker.sheet_bind(self.directory, "https://docs.google.com/spreadsheets/d/book_1-2/edit#gid=123", 123)
+        self.assertEqual({"spreadsheet_id": "book_1-2", "sheet_id": 123}, bound["binding"])
+        self.assertEqual([], tracker.sheet_pending(self.directory, audit=True)["rows"])
+        fresh = self.add(intake="2031")["application"]["id"]
+        self.assertEqual([fresh], [r["id"] for r in tracker.sheet_pending(self.directory)["rows"]])
+        tracker.update(self.directory, old, "researching")
+        self.assertEqual([old], [r["id"] for r in tracker.sheet_pending(self.directory, old)["rows"]])
+        self.assertFalse(tracker.sheet_bind(self.directory, "book_1-2", 123)["changed"])
+
+    def test_sheet_rows_only_expose_allowlisted_values_and_opt_in_listing_links(self):
+        tracker.sheet_bind(self.directory, "book", 0)
+        role = dict(url="https://example.com/candidate/private-a", employer="=literal", requisition_id="000123")
+        identifier = self.add(**role)["application"]["id"]
+        tracker.update(self.directory, identifier, "submitted", note="private-note",
+                       confirmation="private-receipt", evidence_url="https://example.com/private-b")
+        initial = tracker.sheet_pending(self.directory)
+        row = dict(zip(initial["headers"], initial["rows"][0]["values"]))
+        self.assertEqual("submitted", row["Status"])
+        self.assertEqual("=literal", row["Employer"])  # Must be written as RAW or stringValue remotely.
+        self.assertEqual("000123", row["Requisition ID"])
+        self.assertEqual("", row["Public listing URL"])
+        self.assertNotIn("private-", json.dumps(initial))
+        self.assertTrue(self.add(public_url="https://example.com/jobs/123?utm_source=board", **role)["duplicate"])
+        updated = tracker.sheet_pending(self.directory)
+        row = dict(zip(updated["headers"], updated["rows"][0]["values"]))
+        self.assertEqual("https://example.com/jobs/123", row["Public listing URL"])
+        self.assertEqual(identifier, row["Application ID"])
+        self.assertNotIn("private-", json.dumps(updated))
+
+    def test_sheet_retry_replays_latest_snapshot_and_rejects_stale_ack(self):
+        tracker.sheet_bind(self.directory, "book", 0)
+        identifier = self.add()["application"]["id"]
+        first, = tracker.sheet_pending(self.directory)["rows"]
+        self.assertEqual([first], tracker.sheet_pending(self.directory)["rows"])
+        tracker.update(self.directory, identifier, "submission-unknown", note="Earlier interrupted attempt")
+        second, = tracker.sheet_pending(self.directory)["rows"]
+        self.assertNotEqual(first["revision"], second["revision"])
+        with self.assertRaisesRegex(tracker.TrackerError, "Stale"):
+            tracker.sheet_ack(self.directory, identifier, first["revision"])
+        self.assertEqual([second], tracker.sheet_pending(self.directory)["rows"])
+        tracker.sheet_ack(self.directory, identifier, second["revision"])
+        self.assertEqual([], tracker.sheet_pending(self.directory)["rows"])
+        self.assertEqual([second], tracker.sheet_pending(self.directory, audit=True)["rows"])
+        self.assertTrue(tracker.sheet_ack(self.directory, identifier, second["revision"])["acknowledged"])
+        # A stale writer reporting a late write after a newer ACK must queue reconciliation.
+        with self.assertRaisesRegex(tracker.TrackerError, "Stale"):
+            tracker.sheet_ack(self.directory, identifier, first["revision"])
+        self.assertEqual([second], tracker.sheet_pending(self.directory)["rows"])
+
+    def test_sheet_destination_switch_rejects_old_acks_even_after_returning_to_original_tab(self):
+        identifier = self.add()["application"]["id"]
+        tracker.sheet_bind(self.directory, "bookA", 0, include_existing=True)
+        first, = tracker.sheet_pending(self.directory)["rows"]
+        with self.assertRaisesRegex(tracker.TrackerError, "--replace"):
+            tracker.sheet_bind(self.directory, "bookB", 0)
+        tracker.sheet_bind(self.directory, "bookB", 0, replace=True, include_existing=True)
+        with self.assertRaisesRegex(tracker.TrackerError, "Stale"):
+            tracker.sheet_ack(self.directory, identifier, first["revision"])
+        tracker.sheet_bind(self.directory, "bookA", 0, replace=True, include_existing=True)
+        with self.assertRaisesRegex(tracker.TrackerError, "Stale"):
+            tracker.sheet_ack(self.directory, identifier, first["revision"])
+        current, = tracker.sheet_pending(self.directory)["rows"]
+        self.assertEqual(first["values"], current["values"])
+        self.assertNotEqual(first["revision"], current["revision"])
+
+    def test_sheet_selective_enrolment_and_explicit_historical_backfill(self):
+        a = self.add(intake="2027")["application"]["id"]
+        b = self.add(intake="2028")["application"]["id"]
+        tracker.sheet_bind(self.directory, "book", 2, include_id=[b])
+        selected, = tracker.sheet_pending(self.directory)["rows"]
+        self.assertEqual(b, selected["id"])
+        tracker.sheet_ack(self.directory, b, selected["revision"])
+        self.assertEqual([], tracker.sheet_pending(self.directory)["rows"])
+        tracker.sheet_bind(self.directory, "book", 2, include_existing=True)
+        selected, = tracker.sheet_pending(self.directory)["rows"]
+        self.assertEqual(a, selected["id"])
+        self.assertEqual([a, b], [r["id"] for r in tracker.sheet_pending(self.directory, audit=True)["rows"]])
+        self.assertFalse(tracker.sheet_bind(self.directory, "book", 2, include_existing=True)["changed"])
+
+    def test_invalid_sheet_destination_and_damaged_sync_state_never_overwrite_tracker(self):
+        path = self.directory / tracker.STORE_NAME
+        original = path.read_bytes()
+        for book, tab in (("", 0), ("https://docs.google.com.attacker.test/spreadsheets/d/x", 0),
+                          ("https://token@docs.google.com/spreadsheets/d/x", 0), ("book", -1), ("book", True)):
+            with self.subTest(book=book, tab=tab), self.assertRaises(tracker.TrackerError):
+                tracker.sheet_bind(self.directory, book, tab)
+        with self.assertRaisesRegex(tracker.TrackerError, "Application ID"):
+            tracker.sheet_bind(self.directory, "book", 0, include_id=["missing"])
+        self.assertEqual(original, path.read_bytes())
+        tracker.sheet_bind(self.directory, "book", 0)
+        data = tracker.read_store(self.directory)
+        data["google_sheet"]["acknowledged"] = None
+        path.write_text(json.dumps(data), encoding="utf-8")
+        damaged = path.read_bytes()
+        with self.assertRaisesRegex(tracker.TrackerError, "left unchanged"):
+            self.add()
+        self.assertEqual(damaged, path.read_bytes())
+
+    def test_sheet_unbind_cli_preserves_all_applications_and_cancels_pending_sync(self):
+        self.add(intake="2026")
+        tracker.sheet_bind(self.directory, "book", 2)
+        synced = self.add(intake="2027")["application"]["id"]
+        self.add(intake="2028")
+        row, = tracker.sheet_pending(self.directory, synced)["rows"]
+        tracker.sheet_ack(self.directory, synced, row["revision"])
+        expected = tracker.read_store(self.directory)
+        del expected["google_sheet"]
+
+        output = io.StringIO()
+        with redirect_stdout(output):
+            self.assertEqual(0, tracker.main(["sheet-unbind", "--directory", str(self.directory)]))
+        self.assertEqual({"binding": None, "changed": True}, json.loads(output.getvalue()))
+        self.assertEqual(expected, tracker.read_store(self.directory))
+        self.assertEqual([], tracker.sheet_pending(self.directory, audit=True)["rows"])
+        with self.assertRaisesRegex(tracker.TrackerError, "No Google Sheet"):
+            tracker.sheet_ack(self.directory, synced, row["revision"])
+        store = self.directory / tracker.STORE_NAME
+        original = store.read_bytes()
+        self.assertEqual({"binding": None, "changed": False}, tracker.sheet_unbind(self.directory))
+        self.assertEqual(original, store.read_bytes())
 
 
 if __name__ == "__main__":

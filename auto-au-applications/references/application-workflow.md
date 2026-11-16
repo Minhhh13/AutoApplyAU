@@ -93,23 +93,27 @@ Exit 0: the implemented structural, evidence-reference and answer-length checks 
 python3 <skill-dir>/scripts/application_tracker.py init --directory <data-dir>
 python3 <skill-dir>/scripts/application_tracker.py add --directory <data-dir> --employer "Employer" --program "Program and stream" --intake "2027" --url "https://employer.example/careers/role"
 python3 <skill-dir>/scripts/application_tracker.py list --directory <data-dir>
-python3 <skill-dir>/scripts/application_tracker.py update --directory <data-dir> --id <id> --status drafting
-python3 <skill-dir>/scripts/application_tracker.py update --directory <data-dir> --id <id> --status ready
-python3 <skill-dir>/scripts/application_tracker.py update --directory <data-dir> --id <id> --status filled
-python3 <skill-dir>/scripts/application_tracker.py update --directory <data-dir> --id <id> --status submission-pending
-python3 <skill-dir>/scripts/application_tracker.py update --directory <data-dir> --id <id> --status submitted --confirmation "Actual observed receipt text/reference" --evidence-url "https://employer.example/candidate/applications"
+python3 <skill-dir>/scripts/application_tracker.py update --directory <data-dir> --id <id> --expect-status shortlisted --status drafting
+python3 <skill-dir>/scripts/application_tracker.py update --directory <data-dir> --id <id> --expect-status drafting --status ready
+python3 <skill-dir>/scripts/application_tracker.py update --directory <data-dir> --id <id> --expect-status ready --status filled
+python3 <skill-dir>/scripts/application_tracker.py update --directory <data-dir> --id <id> --expect-status filled --status submission-pending
+python3 <skill-dir>/scripts/application_tracker.py update --directory <data-dir> --id <id> --expect-status submission-pending --status submitted --confirmation "Actual observed receipt text/reference" --evidence-url "https://employer.example/candidate/applications"
 python3 <skill-dir>/scripts/application_tracker.py export --directory <data-dir> --output <new-export-path>.csv
 ```
 
-Quote all paths and text in actual shell invocations. Optional add flags: `--location`, `--program-type`, `--stream`, `--requisition-id`. Supply the verified location, stream and requisition consistently for distinct permitted applications. Optional update flags: `--note`, `--confirmation`, `--evidence-url`. The evidence URL must be HTTP(S); local screenshot/receipt paths can be recorded in the packet and referenced in the note. Do not put credentials or token-bearing session URLs in records.
+Quote all paths and text in actual shell invocations. Supply the verified `--location`, `--program-type`, `--stream` and `--requisition-id` when known. For `--url`, use a stable role URL without login, invite or session secrets. Include `--public-url` only for a verified public listing suitable for the linked Sheet. Optional update flags include `--note`, `--confirmation` and `--evidence-url`. The evidence URL must be HTTP(S). A local receipt path can be recorded in the packet and referenced in the note.
+
+Use the last observed status for `--expect-status`. When the final action has an uncertain outcome, use `--expect-status submission-pending --status submission-unknown`. A lock error, status mismatch, existing pending attempt or missing success response means the calling session has no confirmed claim to click Submit. Read the current record before acting.
 
 Statuses: `shortlisted`, `researching`, `needs-info`, `drafting`, `ready`, `filled`, `submission-pending`, `submitted`, `submission-unknown`, `assessment`, `interview`, `offer`, `rejected`, `withdrawn`, `closed`.
 
 The helper deduplicates normalised employer/program/intake identities including supplied stream, location and requisition, and canonical application URLs within the same intake. It strips known tracking parameters while preserving requisition parameters and fragments. Check duplicate records and employer policies manually too: title variations, URL aliases and multiple-office policies require judgement. Reused annual URLs can represent a new verified intake. A generic landing page shared by multiple jobs is insufficient to identify their individual application flows; retain requisition-specific evidence and inspect a duplicate return before deciding whether it is truly the same application.
 
-Updates use an exclusive lock and atomic file replacement. A locked store requires waiting for the actual writer or verifying a crashed writer before manually clearing its lock; never delete the store to resolve a lock. Malformed records are reported without reset. A duplicate addition returns the existing record unchanged. CSV exports never replace an existing output and neutralise spreadsheet formulas; CSV is a view, not the canonical tracker. The tracker is local plaintext: protect it like application documents and keep it out of shared repositories.
+Updates use an exclusive lock and atomic file replacement. A locked store requires waiting for the actual writer or verifying a crashed writer before manually clearing its lock. Malformed records are reported without reset. A duplicate addition returns the existing record and can attach its first verified public listing URL if supplied. CSV exports preserve existing files and neutralise spreadsheet formulas. The tracker is local plaintext. Protect it like application documents and keep it out of shared repositories.
 
 `submitted` requires observed confirmation text. Pending/unknown attempts require reconciliation evidence before returning to an editable status. For a user-reported historic interrupted attempt absent from the tracker, record `submission-unknown` with a note documenting their report; do not invent a previous ready/filled state merely to import it. A submitted/progressed record cannot be reset for another submission. These checks prevent common accidental retries; they do not create user authorisation or verify that a supplied confirmation is true.
+
+For a linked Google Sheet, sync the recorded status and recover interrupted writes using [google-sheets.md](google-sheets.md). A failed spreadsheet update leaves the employer outcome intact. The sheet cannot establish receipt of an application.
 
 ## Assessments and later stages
 

@@ -33,6 +33,13 @@ inspect and which only provided unverified leads.
 ## Work from links you found yourself
 
 ```text
+Create a Google Sheet for my applications. Apply to this specific role using
+my saved profile, then track the outcome there: <job listing URL>
+```
+
+To check and prepare several roles without sending them:
+
+```text
 Check these employer URLs against my saved profile. Deduplicate them against
 my tracker, explain any eligibility issues, and prepare the suitable applications.
 ```

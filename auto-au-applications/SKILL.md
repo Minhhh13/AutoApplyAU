@@ -1,6 +1,6 @@
 ---
 name: auto-au-applications
-description: Find, assess, prepare, fill and track Australian internship, vacationer and graduate program applications using major job boards, specialist/startup platforms, university career portals, government job sites and employer careers pages. Use for an Australian early-careers search, a supplied application URL, application batches, tailored CVs and answers, or updates to an existing application tracker.
+description: Find Australian internships, vacationer and graduate programs, apply to a supplied job link, tailor CVs, fill forms, verify submission and track applications locally or in a linked Google Sheet. Use for Australian early-careers searches, individual applications, bounded batches and tracker updates.
 license: MIT
 ---
 
@@ -16,12 +16,14 @@ Interpret natural language; do not require a command syntax:
 |---|---|
 | Find / shortlist | Discover current opportunities, check eligibility and rank useful matches. |
 | Prepare / tailor | Build the application documents and question responses. |
-| Apply / fill / fill all | Prepare and fill available application forms; present the final review before submission unless the user also authorises submission. |
-| Submit / apply and submit | Submit the specified applications within the user's authorised scope and verify receipt. |
+| "Apply to this link" / apply to specified roles / submit | Verify the specified role(s), tailor, fill, check and submit each eligible application covered by the request. Record the actual result. |
+| Fill / fill all / let me review before sending | Prepare and fill the specified forms. Save the draft and stop at review. |
 | Track / resume | Read existing records, reconcile interrupted attempts and continue the requested stage. |
 | Practise assessments | Generate original practice exercises and feedback; see the assessment section in [application-workflow.md](references/application-workflow.md). |
 
-Keep existing user preferences and authorisation across the conversation. An explicit instruction to submit a named application or a bounded batch is sufficient: do the preparation and verification and proceed without asking again. Creating or invoking this skill alone does not authorise transmitting an application. If submission scope is genuinely unspecified, prepare reviewable work before asking for that missing decision. User instructions take precedence over the defaults here; host permissions still apply.
+An instruction to apply to an identified role or bounded batch authorises submission within that scope, including "could you apply to this role for me?" Honour conditions such as "show me before you send." A bare URL, a capability question or a request to assess a role does not by itself authorise sending. Keep prior choices in scope and use the host's permissions.
+
+For a job link, start at that listing and follow its Apply route. Skip discovery across boards. If a redirect opens a directory, EOI or different requisition, locate the exact advertised role or report what is missing. Do not substitute another program. Use the eligibility, preparation, browser and tracking steps below without requesting approval between them.
 
 For broad batches, establish the program types, locations, disciplines, target intake/availability, maximum count and exclusions from the request or saved preferences. Ask only for missing details that materially affect the work. Continue independent research while awaiting facts. Do not invent a default discipline, nationality or graduation date.
 
@@ -33,7 +35,9 @@ Choose one application working directory, use it for both agents/products, and k
 
 Copy [profile.template.json](assets/profile.template.json) to the working directory as `profile.json` if no profile exists. Preserve an existing profile; import compatible facts from an older profile rather than replacing it. Use the CV, transcript and user-confirmed examples to fill it, keeping unknowns null. Save no passwords, MFA tokens, passport numbers or unrelated sensitive documents. Do not put applicant data in the skill package or commit it to source control.
 
-Initialise/read the [application tracker](scripts/application_tracker.py) before creating application records. Use the returned application ID as the per-application folder name. A duplicate response means inspect the existing record, not create a second folder or overwrite it. The tracker stores statuses; keep detailed sources, eligibility and deadlines in each application's `packet.json`.
+Initialise/read the [application tracker](scripts/application_tracker.py) before creating application records. Use the returned application ID as the per-application folder name. On a duplicate, resume the existing record. For an already submitted or progressed record, report its current outcome. Keep detailed sources, eligibility and deadlines in each application's `packet.json`.
+
+When the applicant asks for Google Sheets tracking or the working directory already has a linked tracker, follow [google-sheets.md](references/google-sheets.md). Use one applicant workspace per tracker tab. On a new or restored workspace with an existing tab, check for this role there before adding a record, starting the form or syncing. Preserve prior progress until reconciled against employer evidence. Save each actual outcome locally first, then sync the same application ID. If a Sheets write fails, retry the tracker update independently of the application.
 
 ## Discover and assess
 
@@ -59,12 +63,12 @@ Run [check_packet.py](scripts/check_packet.py) against the packet and profile af
 
 Read [browser-workflow.md](references/browser-workflow.md) before operating an application form. Work from live observed controls and verified packet answers. Inspect after uploads, parsed-CV autofill, navigation and conditional questions. Ask once for genuinely missing facts and proceed with unrelated applications. Keep one writer per portal session; research and document preparation can run in parallel.
 
-Before any authorised submission, recheck the employer's application policy, live deadline, eligibility, required answers, uploaded document identity and the portal review screen. The packet must contain no unresolved blockers. Record `submission-pending` **before** activating Submit. Record `submitted` only after observing an actual receipt, confirmation number or unambiguous portal success state; retain the confirmation evidence.
+Before any authorised submission, recheck the employer's application policy, live deadline, eligibility, required answers, uploaded document identity and actual portal values. Use the review screen if provided. Resolve all packet blockers. Claim this attempt by writing `submission-pending` with `--expect-status` set to the last observed `ready` or `filled` state. Only the session whose update succeeded may activate the final control, once. On a failed or uncertain write, leave the portal untouched and reconcile the local state. Record `submitted` only after observing a receipt, confirmation number or unambiguous portal success state for this role. Retain the evidence.
 
 After a timeout or ambiguous result, record `submission-unknown` and inspect portal history/receipts before retrying. On resume, treat an existing `submission-pending` the same way. Never resubmit on the assumption that a missing screenshot means failure. If a job is blocked by authentication, an unanswered mandatory field or unavailable tools, preserve its state and continue other authorised work.
 
 ## Finish with an accurate handoff
 
-Report the actual result for each application: shortlisted, needs information, ready, filled, confirmed submitted, uncertain submission or the later recruitment stage. Link the relevant employer/application and local documents. Distinguish source coverage and access gaps, list only decisions the user must make, and state any next deadline with its timezone uncertainty. Never describe drafts, form fills or attempted clicks as submitted applications.
+Report the actual result for each application and link its listing and local documents. When Sheets tracking is enabled, include the sheet link and whether the row synced. If blocked, identify the field, document or portal step the user can resolve. Distinguish source access gaps and deadline timezone uncertainty. Count only confirmed submissions toward a batch total.
 
 For installation and example prompts, see [setup.md](references/setup.md). For the reference project's provenance and Australian changes, see [upstream-reference.md](references/upstream-reference.md).

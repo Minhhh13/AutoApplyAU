@@ -20,11 +20,11 @@
 
 **An Australian internship and graduate application workflow for Codex and Claude Code.**
 
-Bring your CV, study dates and preferences. AutoApply AU guides your agent through finding roles, checking eligibility, tailoring documents, filling supported forms and keeping a local application tracker.
+Give your agent a job link and say **“Apply to this role and track it.”** It checks your eligibility, tailors your documents, fills the employer's form and verifies the outcome. Link a Google Sheet once to see your applications and their latest status in one place.
 
 Built for **internships, vacationer programs and graduate programs** across major Australian boards, specialist/startup platforms, university career portals, government job sites and employer careers pages. Each promising listing is checked against current employer requirements.
 
-**Early release:** the local helpers are tested, and the workflow has an isolated fictional dry run. Live employer portals have not yet been validated end to end. Search, document creation and form filling use the tools available in your Codex or Claude session; this package does not install a browser integration.
+**Early release.** Testing covers a browser run on a fictional form, a Google Sheets update and 400 simulated application records. Live employer portals still need end-to-end testing. Search, document creation and form filling use the tools available in your Codex or Claude session. [What was tested](docs/VALIDATION.md)
 
 ## What it does
 
@@ -33,8 +33,8 @@ Built for **internships, vacationer programs and graduate programs** across majo
 | Find | A source-backed shortlist with locations, intake dates, deadlines and links. |
 | Check | Eligibility assessed against your degree, completion date, academic scale, work rights and availability. Unknowns stay visible. |
 | Prepare | Tailored CV copies and application answers grounded in your confirmed experience. |
-| Apply | Browser-assisted form filling where supported. Review before sending by default, or submit a batch you explicitly authorise. |
-| Track | Saved statuses, duplicate checks, application-specific files and confirmation evidence. |
+| Apply | “Apply to this link” authorises submission to that role. “Fill this form for my review” stops before submission. Both use your host's browser tools. |
+| Track | One row per application in your linked Google Sheet. The local tracker keeps your full record and confirmation evidence. |
 | Resume | Continue saved work and reconcile interrupted submissions before any retry. |
 
 The workflow also supports original assessment practice and interview preparation. Live scored assessments are a separate stage and depend on their permitted-assistance rules.
@@ -96,6 +96,15 @@ In **Claude Code**, invoke `/auto-au-applications` with the same request.
 
 The agent saves a reusable profile and asks for missing facts. For a useful first search, provide your degree/major, qualification-completion month and year, preferred locations, availability and relevant work-rights details. You can supply application contact details later.
 
+### 4. Apply from a link and track the result
+
+```text
+Create a Google Sheet for my applications and link it to this workspace.
+Apply to this role using my saved profile and track the outcome: <job listing URL>
+```
+
+You can also give the agent an existing Google Sheet URL. Your host needs an authenticated Google Sheets integration with edit access. The agent updates the same row as the application progresses. If Sheets is offline, the local tracker keeps the change for the next sync. [Google Sheets setup and privacy](auto-au-applications/references/google-sheets.md)
+
 ## How it works
 
 **Your profile → current listings → eligibility → tailored application → review/submission → tracker**
@@ -124,6 +133,7 @@ Choose the same data directory when switching between Codex and Claude. The pack
 |---|---|
 | “Find 10 suitable programs” | Research and shortlist. |
 | “Prepare these three applications” | Create tailored documents and answers. |
+| “Apply to this link and track it” | Check, prepare, fill and submit that specific role when eligible and ready. Verify the result and update the tracker. |
 | “Fill these three applications” | Fill supported forms and stop at final review. |
 | “Submit these two reviewed applications” | Verify and send within that scope, then record actual confirmation. |
 | “Resume my tracker” | Read saved progress and continue the requested stage. |
@@ -144,7 +154,7 @@ Source access and job-board destinations can change. The agent rechecks them dur
 
 ## Current limits
 
-This is a reusable agent workflow, not a scheduled application service. It needs a supported host session and tools. It does not guarantee access to every job board, compatibility with every ATS, eligibility, application accuracy or an interview. You should review important factual answers and the final documents.
+The workflow runs inside a supported host session. Login, conditional questions, missing applicant facts and employer-specific declarations can require your input. Live employer submission throughput has not been benchmarked. An application counts as submitted only after the agent observes confirmation.
 
 Local tracker/profile files are plaintext. The helper scripts make no network requests; the host's model, search and browser tools have their own data handling. Keep your real application files outside the repository and avoid including them in issue reports.
 
