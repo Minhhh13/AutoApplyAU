@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img" aria-labelledby="title desc">
+  <title id="title">AutoApply AU</title>
+  <desc id="desc">An Australian internship and graduate application workflow for Codex and Claude Code.</desc>
+  <rect width="1280" height="400" rx="20" fill="#102e25"/>
+  <path d="M1040 0h240v400H865L1040 0Z" fill="#173e30"/>
+  <path d="m1175 0 105 0v400h-280L1175 0Z" fill="#1b4937"/>
+  <rect x="64" y="54" width="220" height="31" rx="15.5" fill="#dce8bd"/>
+  <text x="174" y="75" text-anchor="middle" fill="#173e30" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2">BUILT FOR AUSTRALIA</text>
+  <text x="60" y="170" fill="#f6f5ec" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="700" letter-spacing="-3">AutoApply AU<tspan fill="#dce8bd">.</tspan></text>
+  <text x="64" y="218" fill="#f6f5ec" font-family="Arial, Helvetica, sans-serif" font-size="25">Internships. Vacationers. Graduate programs.</text>
+  <text x="64" y="257" fill="#b8cfc2" font-family="Arial, Helvetica, sans-serif" font-size="19">A reusable application workflow for Codex + Claude Code.</text>
+  <path d="M64 302H1216" stroke="#537261" stroke-width="1"/>
+  <g fill="#dce8bd" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">
+    <text x="64" y="347">FIND</text>
+    <text x="251" y="347">CHECK</text>
+    <text x="459" y="347">PREPARE</text>
+    <text x="699" y="347">APPLY</text>
+    <text x="929" y="347">TRACK</text>
+  </g>
+  <g fill="none" stroke="#739482" stroke-width="1.5">
+    <path d="M168 341h35m-6-6 6 6-6 6"/>
+    <path d="M377 341h35m-6-6 6 6-6 6"/>
+    <path d="M617 341h35m-6-6 6 6-6 6"/>
+    <path d="M847 341h35m-6-6 6 6-6 6"/>
+  </g>
+</svg>

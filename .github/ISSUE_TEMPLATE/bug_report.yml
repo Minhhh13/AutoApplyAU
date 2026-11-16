@@ -1,0 +1,26 @@
+name: Bug report
+description: Report a reproducible problem with the skill, helpers or setup.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: "Use fictional or redacted examples. Do not include real CVs, transcripts, credentials or application receipts."
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Include the steps, expected result and actual result.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "Codex or Claude Code; OS; Python version; release/commit"
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Reproduction details
+      description: Add a minimal fictional example or redacted error output.

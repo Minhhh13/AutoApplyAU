@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "application_id": null,
+  "opportunity": {
+    "employer": null,
+    "program": null,
+    "program_type": null,
+    "stream": null,
+    "requisition_id": null,
+    "location": null,
+    "intake": null,
+    "discovery_urls": [],
+    "application_url": null,
+    "live_state": "unverified",
+    "checked_at": null,
+    "deadline": {
+      "original_text": null,
+      "date": null,
+      "time": null,
+      "timezone": null,
+      "source_url": null,
+      "rolling_or_early_close": null
+    },
+    "employer_multiple_application_policy": {
+      "summary": null,
+      "source_url": null,
+      "checked_at": null
+    }
+  },
+  "eligibility": {
+    "status": "needs-clarification",
+    "criteria": []
+  },
+  "documents": [],
+  "questions": [],
+  "blockers": ["Opportunity, profile and required portal fields have not been verified."],
+  "review": {
+    "portal_fields_inspected": false,
+    "uploads_verified": false,
+    "reviewed_at": null
+  },
+  "submission": {
+    "attempted_at": null,
+    "confirmation_text": null,
+    "confirmation_reference": null,
+    "evidence_url_or_local_path": null
+  }
+}

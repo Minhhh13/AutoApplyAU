@@ -1,0 +1,16 @@
+name: Improvement
+description: Suggest an Australian source, workflow or helper improvement.
+title: "[Idea]: "
+body:
+  - type: textarea
+    id: use-case
+    attributes:
+      label: What are you trying to do?
+      description: Describe the concrete situation and what would help.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Examples or sources
+      description: Link public employer/provider documentation where useful. Keep applicant details private.

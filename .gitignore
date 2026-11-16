@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+.validation-env/
+application-data/
+dist/
+.evaluation/
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+profile.json
+applications.json
+.applications.lock
+*.zip

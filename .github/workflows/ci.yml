@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.10', '3.13']
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Test distribution helpers
+        run: python -m unittest discover -s tests -v
+      - name: Test skill helpers
+        run: python -m unittest discover -s auto-au-applications/tests -v
+      - name: Build portable skill
+        run: python scripts/package_skill.py --output dist/auto-au-applications-ci.zip

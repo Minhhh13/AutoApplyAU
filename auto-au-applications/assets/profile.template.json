@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "person": {
+    "legal_name": null,
+    "preferred_name": null,
+    "email": null,
+    "phone": null,
+    "city": null,
+    "state_or_territory": null,
+    "country": null,
+    "linkedin_url": null,
+    "portfolio_url": null
+  },
+  "education": [],
+  "work_rights": {
+    "citizenships_confirmed_by_user": null,
+    "status_in_users_words": null,
+    "current_conditions_confirmed_by_user": null,
+    "valid_until": null,
+    "requires_sponsorship_now": null,
+    "requires_sponsorship_later": null,
+    "evidence_ids": []
+  },
+  "preferences": {
+    "market": "Australia",
+    "program_types": ["internship", "graduate"],
+    "disciplines": [],
+    "locations": [],
+    "intakes": [],
+    "available_from": null,
+    "available_until": null,
+    "relocation": null,
+    "remote_or_hybrid": null,
+    "excluded_employers": [],
+    "excluded_roles": [],
+    "minimum_pay_in_users_words": null,
+    "display_timezone": "Australia/Sydney"
+  },
+  "documents": {
+    "master_cv": null,
+    "transcript": null,
+    "other": []
+  },
+  "evidence": [],
+  "experience_examples": [],
+  "standard_answers": [],
+  "optional_disclosures": {},
+  "unresolved_facts": []
+}
