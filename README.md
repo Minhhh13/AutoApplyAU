@@ -11,6 +11,7 @@
 
 <p align="center">
   <a href="#get-started">Get started</a> ·
+  <a href="#guardrails">Guardrails</a> ·
   <a href="https://github.com/Minhhh13/AutoApplyAU/releases/latest/download/auto-au-applications.zip">Download the skill</a> ·
   <a href="docs/EXAMPLES.md">Example prompts</a> ·
   <a href="https://github.com/Minhhh13/AutoApplyAU/issues">Feedback</a>
@@ -37,7 +38,13 @@ Built for **internships, vacationer programs and graduate programs** across majo
 | Track | One row per application in your linked Google Sheet. The local tracker keeps your full record and confirmation evidence. |
 | Resume | Continue saved work and reconcile interrupted submissions before any retry. |
 
-The workflow also supports original assessment practice and interview preparation. Live scored assessments are a separate stage and depend on their permitted-assistance rules.
+## Guardrails
+
+- **You choose when to send.** “Fill this for review” stops before submission. “Apply to this link” authorises the agent to send that specific application once it has checked the answers, uploads and eligibility. [How submission works](auto-au-applications/references/browser-workflow.md#review-and-submit-within-scope)
+- **Your CV stays factual.** The agent tailors a copy using your master CV and confirmed examples. If it needs a graduation date, a work-rights detail or evidence for an achievement, it asks you. [Profile and evidence](auto-au-applications/references/application-workflow.md#applicant-profile)
+- **Repeat applications get checked.** The agent checks the tracker and the employer’s limits on streams and locations. It records “submitted” only after seeing confirmation for that role. If the portal times out, it checks for a receipt or application history before trying again. [Tracker rules](auto-au-applications/references/application-workflow.md#tracker-commands)
+- **Sign-in and personal declarations stay with you.** You handle passwords, MFA, CAPTCHA and any new declaration requiring your signature. The skill can help you practise psychometric tests and hands over live assessments that require independent completion. [Browser handoffs](auto-au-applications/references/browser-workflow.md) · [Assessment rules](auto-au-applications/references/application-workflow.md#assessments-and-later-stages)
+- **Google Sheets tracking is optional.** The sheet shows the employer, role, status and public listing link when available. Your CV, answers, private portal links and receipts stay out of the sheet. [What gets synced](auto-au-applications/references/google-sheets.md#write-and-verify-each-application)
 
 ## Where it searches
 
