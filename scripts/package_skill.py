@@ -86,7 +86,7 @@ def package(source, output, force=False):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--version", default="v0.1.0", help="Version used in the default archive name")
+    parser.add_argument("--version", default="v0.1.1", help="Version used in the default archive name")
     parser.add_argument("--output", type=Path, help="ZIP destination; defaults to dist/auto-au-applications-VERSION.zip")
     parser.add_argument("--force", action="store_true", help="Replace an existing ZIP at --output")
     args = parser.parse_args(argv)

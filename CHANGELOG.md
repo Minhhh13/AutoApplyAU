@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 — 16 November 2026
+
+- Expanded discovery to additional general, specialist, startup, university and government opportunity sources.
+- Added source selection by discipline, location and existing university/member access, with duplicate and access-gap handling.
+- Updated the public examples and documentation for the broader source coverage.
+- Removed the "Built for Australia" badge from the repository banner.
+
 ## 0.1.0 — 16 November 2026
 
 Initial public release of AutoApply AU.

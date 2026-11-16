@@ -22,7 +22,7 @@
 
 Bring your CV, study dates and preferences. AutoApply AU guides your agent through finding roles, checking eligibility, tailoring documents, filling supported forms and keeping a local application tracker.
 
-Built for **internships, vacationer programs and graduate programs** across **Prosple, Indeed Australia, GradConnection/SEEK, LinkedIn and employer careers sites**. Each promising listing is checked against current employer requirements.
+Built for **internships, vacationer programs and graduate programs** across major Australian boards, specialist/startup platforms, university career portals, government job sites and employer careers pages. Each promising listing is checked against current employer requirements.
 
 **Early release:** the local helpers are tested, and the workflow has an isolated fictional dry run. Live employer portals have not yet been validated end to end. Search, document creation and form filling use the tools available in your Codex or Claude session; this package does not install a browser integration.
 
@@ -38,6 +38,19 @@ Built for **internships, vacationer programs and graduate programs** across **Pr
 | Resume | Continue saved work and reconcile interrupted submissions before any retry. |
 
 The workflow also supports original assessment practice and interview preparation. Live scored assessments are a separate stage and depend on their permitted-assistance rules.
+
+## Where it searches
+
+| Coverage | Discovery sources |
+|---|---|
+| General and early-career boards | Prosple, Indeed AU, GradConnection/SEEK, LinkedIn Jobs, Jora, Adzuna, Glassdoor and CareerOne. |
+| Early careers and startups | Hatch and Wellfound, filtered for Australian internships and junior/graduate roles. |
+| Specialist roles | EthicalJobs for social-impact work, eFinancialCareers for finance, and Engineers Australia for members' engineering opportunities. |
+| Government | APS Jobs, I Work for NSW, Careers Victoria, Queensland Smart Jobs, WA Government Jobs, I WORK FOR SA, Tasmanian State Service, ACT Jobs and NT Government Jobs. |
+| Universities | The applicant's own careers portal; examples include Sydney CareerHub, UNSW job opportunities and Monash's jobs board. |
+| Employers | Current careers/program pages and the actual application destination. |
+
+The agent chooses additional sources by discipline, location and existing university/member access. These are source-selection instructions used through your host's tools, not bundled connections to every platform. Login/access varies, and syndicated listings are deduplicated. [Source links and routing guidance →](auto-au-applications/references/australian-market.md)
 
 ## Get started
 

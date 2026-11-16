@@ -76,7 +76,7 @@ Use $auto-au-applications. Use MY_JOB_SEARCH under my current working directory
 for application data and set up my profile from the CV and transcript I provide.
 Find Australian internships and graduate programs matching my confirmed degree,
 completion date, availability, work rights and location preferences. Search
-Prosple, Indeed, GradConnection/SEEK and LinkedIn, verify employer requirements,
+the main boards plus relevant specialist, startup, university and government sources, verify employer requirements,
 and shortlist up to 10 relevant opportunities.
 ```
 

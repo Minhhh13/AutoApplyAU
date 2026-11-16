@@ -4,7 +4,7 @@ I built AutoApply AU: an open-source Codex and Claude Code skill for Australian 
 
 It brings the repeated parts of applying into one reusable workflow:
 
-- Find roles across Prosple, Indeed, GradConnection/SEEK, LinkedIn and employer sites.
+- Find roles across major Australian boards, specialist/startup platforms, government and university portals, and employer sites.
 - Check degree windows, work-rights requirements, academic scales and deadlines.
 - Prepare tailored CVs and answers from your confirmed experience.
 - Fill supported application forms and track progress locally.

@@ -14,9 +14,20 @@ anything missing or contradictory before using it in an application.
 
 ```text
 Find 10 Australian internship, vacationer or graduate programs matching my profile.
-I prefer Sydney and Melbourne. Search Prosple, Indeed, GradConnection/SEEK and
-LinkedIn, then check employer requirements and current deadlines.
+I prefer Sydney and Melbourne. Search the main boards, then expand to relevant
+specialist/startup, government and university sources from the skill's source guide.
+Check employer requirements and current deadlines, and deduplicate across boards.
 Show eligibility, missing facts and sources for each result. Do not submit anything.
+```
+
+## Expand a narrow search
+
+```text
+My shortlist is too small. Broaden the search to additional sources relevant
+to my discipline and locations, including Hatch/Wellfound for suitable startup
+roles, relevant public-sector portals and my university's careers board.
+Keep my eligibility and exclusions unchanged. Report which sources you could
+inspect and which only provided unverified leads.
 ```
 
 ## Work from links you found yourself

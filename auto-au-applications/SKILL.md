@@ -1,6 +1,6 @@
 ---
 name: auto-au-applications
-description: Find, assess, prepare, fill and track Australian internship, vacationer and graduate program applications using Prosple, Indeed, GradConnection, SEEK, LinkedIn and employer careers sites. Use for an Australian early-careers search, a supplied application URL, application batches, tailored CVs and answers, or updates to an existing application tracker.
+description: Find, assess, prepare, fill and track Australian internship, vacationer and graduate program applications using major job boards, specialist/startup platforms, university career portals, government job sites and employer careers pages. Use for an Australian early-careers search, a supplied application URL, application batches, tailored CVs and answers, or updates to an existing application tracker.
 license: MIT
 ---
 
@@ -37,7 +37,7 @@ Initialise/read the [application tracker](scripts/application_tracker.py) before
 
 ## Discover and assess
 
-Read [australian-market.md](references/australian-market.md) for Australian sources, intake/date interpretation and eligibility checks. Search the user's usual sources: **Prosple, Indeed Australia, GradConnection, SEEK and LinkedIn Jobs**, plus employer careers pages. Recheck live destinations and access; GradConnection migration information is a dated lead, not a permanent assumption.
+Read [australian-market.md](references/australian-market.md) for current discovery entry points, source selection, intake/date interpretation and eligibility checks. Start with the user's requested boards and employer careers pages, then expand to relevant general, specialist/startup, university and public-sector sources from that reference. Choose additional sources using the applicant's discipline, location, university access and preferences; preserve explicit source exclusions. Recheck live destinations and access, including dated migration/closure information. These are discovery routes used through the host's available tools, not bundled integrations with every platform.
 
 Use current employer/ATS evidence to verify the opportunity, live application state, program intake, deadline and mandatory requirements. Distinguish EOI/pre-registration from open applications. Preserve source URLs, exact deadline wording and checked-at timestamps. A cached job-board result is insufficient to call a role open.
 
