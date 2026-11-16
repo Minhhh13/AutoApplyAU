@@ -8,7 +8,10 @@ permissions:
   contents: read
 
 jobs:
+  browser:
+    uses: ./.github/workflows/browser-tests.yml
   release:
+    needs: browser
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -27,9 +30,11 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: python scripts/package_skill.py --version "$RELEASE_TAG" --output dist/auto-au-applications.zip
+      - name: Build optional browser extension
+        run: python scripts/package_skill.py --extension --output dist/autoapply-au-browser.zip
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
-        run: gh release create "$RELEASE_TAG" "dist/auto-au-applications.zip" --verify-tag --title "AutoApply AU $RELEASE_TAG" --generate-notes
+        run: gh release create "$RELEASE_TAG" dist/auto-au-applications.zip dist/autoapply-au-browser.zip --verify-tag --title "AutoApply AU $RELEASE_TAG" --generate-notes

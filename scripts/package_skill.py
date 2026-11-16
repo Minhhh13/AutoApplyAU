@@ -18,19 +18,28 @@ ROOT = Path(__file__).resolve().parents[1]
 PUBLISHED_FILES = (
     "SKILL.md", "agents/openai.yaml", "assets/packet.template.json",
     "assets/profile.template.json", "references/application-workflow.md",
-    "references/australian-market.md", "references/browser-workflow.md",
+    "references/ats-platforms.md", "references/australian-market.md", "references/browser-workflow.md",
     "references/google-sheets.md", "references/setup.md", "references/upstream-reference.md",
     "scripts/application_tracker.py", "scripts/check_packet.py",
+)
+EXTENSION_NAME = "browser-extension"
+EXTENSION_FILES = (
+    "manifest.json", "platforms.js", "profile.js", "fill.js", "toolbar.js",
+    "popup.html", "popup.js", "popup.css",
 )
 
 
 def skill_files(source):
+    return published_files(source, PUBLISHED_FILES)
+
+
+def published_files(source, inventory):
     """Return published relative paths only; never discover arbitrary local data."""
     source = Path(source)
     if source.is_symlink() or not source.is_dir():
         raise ValueError("Skill source must be a real directory")
     result = {}
-    for name in PUBLISHED_FILES:
+    for name in inventory:
         path = source / name
         if not path.is_file() or path.is_symlink():
             raise ValueError(f"Missing or symlinked distribution file: {name}")
@@ -51,9 +60,10 @@ def skill_files(source):
     return result
 
 
-def package(source, output, force=False):
+def package(source, output, force=False, *, extension=False):
     source, output = Path(source).resolve(), Path(output).absolute()
-    files = skill_files(source)
+    files = published_files(source, EXTENSION_FILES if extension else PUBLISHED_FILES)
+    folder = EXTENSION_NAME if extension else SKILL_NAME
     if output.suffix.lower() != ".zip":
         raise ValueError("Archive output must use a .zip extension")
     if output.is_symlink() or output.resolve().is_relative_to(source):
@@ -67,7 +77,7 @@ def package(source, output, force=False):
             temporary = Path(handle.name)
         with zipfile.ZipFile(temporary, "w", compression=zipfile.ZIP_DEFLATED) as archive:
             for name, path in sorted(files.items()):
-                entry = zipfile.ZipInfo(f"{SKILL_NAME}/{name}", date_time=(2020, 1, 1, 0, 0, 0))
+                entry = zipfile.ZipInfo(f"{folder}/{name}", date_time=(2020, 1, 1, 0, 0, 0))
                 entry.compress_type = zipfile.ZIP_DEFLATED
                 entry.external_attr = 0o100644 << 16
                 archive.writestr(entry, path.read_bytes())
@@ -86,15 +96,17 @@ def package(source, output, force=False):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--version", default="v0.2.0", help="Version used in the default archive name")
-    parser.add_argument("--output", type=Path, help="ZIP destination; defaults to dist/auto-au-applications-VERSION.zip")
+    parser.add_argument("--version", default="v0.3.0", help="Version used in the default archive name")
+    parser.add_argument("--extension", action="store_true", help="Package the optional Chrome/Edge extension")
+    parser.add_argument("--output", type=Path, help="ZIP destination; defaults to a versioned file in dist/")
     parser.add_argument("--force", action="store_true", help="Replace an existing ZIP at --output")
     args = parser.parse_args(argv)
     if not re.fullmatch(r"v?[0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?", args.version):
         parser.error("--version must be a semantic version such as v0.1.0")
-    output = args.output or ROOT / "dist" / f"{SKILL_NAME}-{args.version}.zip"
+    folder = EXTENSION_NAME if args.extension else SKILL_NAME
+    output = args.output or ROOT / "dist" / f"{folder}-{args.version}.zip"
     try:
-        print(json.dumps(package(ROOT / SKILL_NAME, output, args.force)))
+        print(json.dumps(package(ROOT / folder, output, args.force, extension=args.extension)))
         return 0
     except (ValueError, OSError, zipfile.BadZipFile) as exc:
         print(json.dumps({"error": str(exc)}), file=sys.stderr)

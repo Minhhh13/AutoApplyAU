@@ -144,6 +144,27 @@ class DistributionTests(unittest.TestCase):
         packaging.package(self.source, output, force=True)
         self.assertTrue(zipfile.is_zipfile(output))
 
+    def test_extension_archive_loads_its_manifest_and_only_packaged_assets(self):
+        source = self.base / packaging.EXTENSION_NAME
+        source.mkdir()
+        for filename in packaging.EXTENSION_FILES:
+            published = ROOT / packaging.EXTENSION_NAME / filename
+            (source / filename).write_bytes(published.read_bytes())
+        (source / "profile.json").write_text("private applicant data", encoding="utf-8")
+        target = self.base / "extension.zip"
+        packaging.package(source, target, extension=True)
+        with zipfile.ZipFile(target) as archive:
+            prefix = packaging.EXTENSION_NAME + "/"
+            self.assertNotIn(prefix + "profile.json", archive.namelist())
+            self.assertIn(prefix + "LICENSE", archive.namelist())
+            manifest = json.loads(archive.read(prefix + "manifest.json"))
+            self.assertEqual(3, manifest["manifest_version"])
+            references = [manifest["action"]["default_popup"]]
+            for script in manifest["content_scripts"]:
+                references.extend(script["js"])
+            for filename in references:
+                self.assertGreater(len(archive.read(prefix + filename)), 0)
+
     def test_installer_cli_uses_isolated_home_and_config_environment(self):
         environ = dict(os.environ, HOME=str(self.home), USERPROFILE=str(self.home))
         environ.pop("CODEX_HOME", None)

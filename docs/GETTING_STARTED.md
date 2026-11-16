@@ -78,6 +78,8 @@ The agent keeps one row per application, including the employer, role, status an
 
 ## First batch
 
+If your browser supports extensions, you can install [AutoApply AU autofill for Chrome or Edge](../README.md#browser-autofill). Load it in the profile your agent actually opens. If the host uses a separate managed browser, it can follow the [portal guide](../auto-au-applications/references/ats-platforms.md) with its own browser tools.
+
 After reviewing the shortlist:
 
 ```text
@@ -101,6 +103,7 @@ Missing required facts, login/MFA/CAPTCHA or unfamiliar material choices can nee
 | Skill does not appear | Check the complete folder is in the host's discovered directory; open a new chat/session. |
 | Existing installation conflict | Inspect it first; use `--update` only for an intended update. |
 | No browser tools | Use shortlist/document mode and the generated field mapping; enable supported host browser tools for form filling. |
+| No autofill button | Check which browser profile is open and that the extension has your profile. If the form is embedded, inspect the actual application frame. For a custom employer site, open the extension popup on the form or use the host's form controls. |
 | Board access blocked | Use the employer page or supply the listing URL; the agent reports the access gap. |
 | Submission outcome uncertain | Reconcile portal history or a receipt before retrying. |
 | Two agents edit the same application | Give one agent ownership of the portal session and record; parallelise research separately. |

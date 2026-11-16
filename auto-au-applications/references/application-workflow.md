@@ -26,7 +26,7 @@ Start with [profile.template.json](../assets/profile.template.json). A blank tem
 
 The standard fields are:
 
-- `person`: strings for names, contact details and links, supplied by the user. Phone numbers and postcodes remain strings.
+- `person`: strings for names, contact details and links, supplied by the user. Keep phone numbers and postcodes as strings. When a form needs separate names, use confirmed `given_name` and `family_name`. A `legal_name` alone can populate a full-name field. The optional browser extension imports available contact fields from this same profile.
 - `education`: one object per qualification, with `institution`, `degree`, `major`, `qualification_level`, `start_date`, `expected_completion_date`, `actual_completion_date`, `graduation_ceremony_date`, `academic_result`, `academic_scale`, and `evidence_ids`. Use ISO dates when known and month precision when only the month is known. Dates with different meanings are not interchangeable.
 - `work_rights`: the applicant's own confirmed status, present conditions, relevant expiry and separate sponsorship-now/later answers. A null citizenship list means unknown, not no citizenship. Do not infer work permission from country of residence or predict future visa approval.
 - `preferences`: Australian market, target program types, disciplines, locations, intakes, availability, relocation, remote/hybrid preferences, exclusions and display timezone. These are preferences, not demographic facts or submission authorisation.

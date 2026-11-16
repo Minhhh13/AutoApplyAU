@@ -10,7 +10,7 @@ AutoApply AU is an Agent Skill for Codex and Claude Code. The model follows its 
 - Appropriate document/export tools to produce the employer's requested CV and supporting files. Without an exporter, the agent can produce an editable draft and identify the remaining conversion step.
 - Optional Google Sheets integration with edit access to track applications in a private or user-selected workbook. Keep using the same local application directory between sessions. [Connect a sheet](google-sheets.md)
 
-The skill does not depend on the upstream project's Chrome extension or a particular model. If form-control tools are unavailable, it can still research roles, prepare documents and provide a field-by-field handoff.
+To speed up routine form fields, install the optional [AutoApply AU browser extension](https://github.com/Minhhh13/AutoApplyAU#browser-autofill) in the Chrome or Edge profile that your agent controls. Import your private application workspace’s `profile.json` from the extension popup. The agent can also use the available browser tools directly. Without form controls it can research roles, prepare documents and provide a field-by-field handoff.
 
 ## Install from the repository
 

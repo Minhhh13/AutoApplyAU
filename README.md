@@ -11,6 +11,7 @@
 
 <p align="center">
   <a href="#get-started">Get started</a> ·
+  <a href="#browser-autofill">Browser autofill</a> ·
   <a href="#guardrails">Guardrails</a> ·
   <a href="https://github.com/Minhhh13/AutoApplyAU/releases/latest/download/auto-au-applications.zip">Download the skill</a> ·
   <a href="docs/EXAMPLES.md">Example prompts</a> ·
@@ -21,11 +22,11 @@
 
 **An Australian internship and graduate application workflow for Codex and Claude Code.**
 
-Give your agent a job link and say **“Apply to this role and track it.”** It checks your eligibility, tailors your documents, fills the employer's form and verifies the outcome. Link a Google Sheet once to see your applications and their latest status in one place.
+Ask **“Find me five software internships in Melbourne on Prosple, SEEK, Indeed and LinkedIn.”** The agent searches with your profile and checks promising listings against employer requirements. You can also give it a job link and say **“Apply to this role and track it.”** It tailors your documents, fills supported forms and verifies the outcome. Link a Google Sheet once to see your progress.
 
 Built for **internships, vacationer programs and graduate programs** across major Australian boards, specialist/startup platforms, university career portals, government job sites and employer careers pages. Each promising listing is checked against current employer requirements.
 
-**Early release.** Testing covers a browser run on a fictional form, a Google Sheets update and 400 simulated application records. Live employer portals still need end-to-end testing. Search, document creation and form filling use the tools available in your Codex or Claude session. [What was tested](docs/VALIDATION.md)
+Search, document creation and form filling use the tools available in your Codex or Claude session. The optional Chrome/Edge extension helps fill routine fields on employer portals. [What was tested](docs/VALIDATION.md)
 
 ## What it does
 
@@ -111,6 +112,17 @@ Apply to this role using my saved profile and track the outcome: <job listing UR
 ```
 
 You can also give the agent an existing Google Sheet URL. Your host needs an authenticated Google Sheets integration with edit access. The agent updates the same row as the application progresses. If Sheets is offline, the local tracker keeps the change for the next sync. [Google Sheets setup and privacy](auto-au-applications/references/google-sheets.md)
+
+## Browser autofill
+
+AutoApply AU recognises Workday, Greenhouse, Lever, Ashby, Oracle Recruiting Cloud, iCIMS, SmartRecruiters, Workable, Jobvite and BambooHR. Those are the ten hiring platforms in Thang Phung’s extension. It also recognises Oracle Taleo and PageUp. Each employer chooses its own fields, sign-in requirements and application steps. [Portal guide](auto-au-applications/references/ats-platforms.md)
+
+1. Download the [browser extension ZIP](https://github.com/Minhhh13/AutoApplyAU/releases/latest/download/autoapply-au-browser.zip) and extract it, or use the `browser-extension` folder from this repository.
+2. Open `chrome://extensions` or `edge://extensions` in the browser profile you use for applications. Turn on **Developer mode**, choose **Load unpacked**, then select the folder containing `manifest.json`.
+3. Open the extension popup and import the `profile.json` from your private application workspace. It stores the available name, contact, address, profile links and supported education fields locally in that browser. Import the file again if your details change.
+4. On an employer's application step, use **Fill with AutoApply AU** and check the result. Codex or Claude can use the same button when its browser tools control that profile. The agent handles remaining questions, attaches the CV tailored to the role and follows your review or submission instruction. On custom employer domains, use **Fill this page** in the popup.
+
+The extension fills empty controls it can match. It only selects a dropdown option when it can identify the requested value. Live employer submissions and application volume across platforms have yet to be measured. [Browser test coverage](docs/VALIDATION.md)
 
 ## How it works
 

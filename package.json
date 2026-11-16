@@ -1,0 +1,11 @@
+{
+  "name": "autoapply-au-browser-tests",
+  "version": "0.3.0",
+  "private": true,
+  "scripts": {
+    "test:browser": "node --test tests/extension.test.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.65.1"
+  }
+}

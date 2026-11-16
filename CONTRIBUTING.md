@@ -17,6 +17,8 @@ python3 scripts/package_skill.py --help
 
 On Windows use `py -3` in place of `python3`. Follow the CLI help for packaging an output without replacing a previous archive.
 
+For changes to the browser extension, run the [Chromium tests](docs/VALIDATION.md#browser-extension-coverage). Use fictional applicants and local test forms. Build the installable ZIP with `python3 scripts/package_skill.py --extension`.
+
 ## Keep instructions and helpers aligned
 
 - Keep `SKILL.md` focused; put conditional detail in references.

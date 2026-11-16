@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AutoApply AU</title>
+    <link rel="stylesheet" href="popup.css" />
+    <script src="profile.js" defer></script>
+    <script src="popup.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <h1>AutoApply AU</h1>
+      <section aria-labelledby="profile-title">
+        <h2 id="profile-title">Applicant profile</h2>
+        <p id="profile-summary">Checking this browser…</p>
+        <label for="profile-file">Import confirmed profile.json</label>
+        <input type="file" id="profile-file" accept=".json,application/json" />
+        <p class="note">
+          Imports contact details and a single qualification into this browser. Use only a profile you’ve
+          checked.
+        </p>
+        <button id="forget" class="link" type="button" disabled>Forget saved fields</button>
+      </section>
+      <section aria-labelledby="form-title">
+        <h2 id="form-title">Application form</h2>
+        <p id="site"></p>
+        <button id="fill" type="button" disabled>Fill this page</button>
+        <output id="status" role="status"></output>
+      </section>
+    </main>
+  </body>
+</html>

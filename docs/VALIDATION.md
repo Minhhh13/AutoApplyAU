@@ -31,6 +31,16 @@ No website was filled or submitted during that evaluation. The fixtures and exec
 
 A later browser test used Edge and a local fictional employer form. Selecting the applicant's study stage revealed a required completion-month field. The agent filled it, uploaded the fictional CV, checked the displayed answers and filename, and recorded a pending attempt. The test server received one submission with the expected fields and file bytes. The browser displayed a role-specific receipt, which the agent recorded in the tracker.
 
+## Browser extension coverage
+
+The Chromium tests load the unpacked extension, import a fictional profile through its popup and click its visible fill control. Each of the ten upstream portal families, plus Oracle Taleo and PageUp, has a simulated application route with a representative contact field. The tests check the entered values and browser input events, preserve existing answers and repeat the fill. The fixtures intercept network requests. [Browser tests](../tests/extension.test.cjs) · [Portal guide](../auto-au-applications/references/ats-platforms.md)
+
+Other browser tests cover a Workday dropdown, an Oracle Recruiting Cloud selection grid and an employer page with an embedded Greenhouse form. They check that the extension preserves existing answers and leaves unrelated fields and frames alone.
+
+On 16 November 2026 we also opened public employer pages in a signed-out browser. We saved the rendered forms for Deputy on Lever and Fivetran on Greenhouse, then filled fictional details in **offline copies** with external requests blocked. The extension filled six fields on the Lever copy, including LinkedIn, GitHub and portfolio links, and twelve on the Greenhouse copy. The Workday and Oracle Recruiting Cloud checks reached public listings. Those visits did not exercise authenticated application steps or send applications.
+
+For a local run, use Node.js 22+, then run `npm ci`, `npx playwright install chromium` and `npm run test:browser` from the repository root. The test dependencies are separate from the released extension.
+
 ## Google Sheets and batch tracking
 
 A live test wrote one fictional application to a native Google Sheet, read it back, changed its status, and verified that the same application ID still occupied exactly one row. The requisition ID retained its leading zeros. The private portal URL stayed local. The test row was removed afterwards.

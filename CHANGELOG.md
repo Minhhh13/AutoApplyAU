@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0 — 16 November 2026
+
+- Added an optional Chrome/Edge autofill extension with a local applicant profile and a separate release ZIP.
+- Added form guidance for the ten platforms covered by AutoInternshipClaude, plus Oracle Taleo and PageUp.
+- Added Chromium checks for supported portal layouts and documented how to start a search on Prosple, SEEK, Indeed and LinkedIn using a role and location.
+
 ## 0.2.0 — 16 November 2026
 
 - “Apply to this link” now takes a specific role through eligibility checks, preparation, form filling and confirmed submission when the host supports it. “Fill for review” still stops before submission.

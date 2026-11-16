@@ -11,6 +11,10 @@ Use the browser/computer-use tool already supported by the host. Read its instru
 
 ## Fill from observed controls
 
+After following Apply, identify the actual employer portal and use the corresponding [portal instructions](ats-platforms.md). For a form inside a frame, use the host's supported frame controls, or open the employer-provided application link directly if it preserves the role and session. Login and candidate verification stay with the applicant.
+
+When the optional AutoApply AU extension is installed in the same browser, use its **Fill with AutoApply AU** button on the verified application step. Read the result and compare the actual values with the applicant's packet. Verify selected dropdown values after the page updates. Complete remaining questions and uploads with normal browser tools, including the tailored CV for this particular role. On a new step, repeat the fill and verification. If the button is absent or the employer uses a custom domain, continue using observed form controls.
+
 - Inspect the current page's labels, available options, required indicators, text limits and validation messages. Use semantic field labels where the tool supports them; otherwise use live visual observations. Do not hard-code guessed selectors for Workday, PageUp, Taleo, SuccessFactors, SmartRecruiters or a job board.
 - Map each control to a known profile fact or exact packet answer. Record newly encountered required prompts. A generic yes/no answer in an upstream profile is not valid for a differently worded work-rights question.
 - Preserve Australian telephone numbers, postcodes, state/territory, international academic scales and completion dates. Use the field's expected format and inspect the stored value after interacting. Keep phone/postcode data as strings.

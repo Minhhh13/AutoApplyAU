@@ -20,6 +20,14 @@ Check employer requirements and current deadlines, and deduplicate across boards
 Show eligibility, missing facts and sources for each result. Do not submit anything.
 ```
 
+You can also give one instruction covering a search and a specific batch:
+
+```text
+Find software internships in Melbourne on Prosple, SEEK, Indeed and LinkedIn.
+Apply to up to three that match my confirmed profile and have open applications.
+Track the result of each one in my Google Sheet.
+```
+
 ## Expand a narrow search
 
 ```text

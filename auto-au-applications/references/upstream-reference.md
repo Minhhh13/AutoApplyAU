@@ -4,9 +4,9 @@
 
 - Reference project: [pqthangv/AutoInternshipClaude](https://github.com/pqthangv/AutoInternshipClaude).
 - Reviewed revision: [`9f72000d76a45dc499d99911247c4439ad609d0a`](https://github.com/pqthangv/AutoInternshipClaude/tree/9f72000d76a45dc499d99911247c4439ad609d0a), reviewed on 16 November 2026.
-- Reviewed: root README, `internship-application/SKILL.md`, and its `references/profile.md`, `batch.md`, `filling.md`, `submitting.md` and `tailoring.md` (selected relevant sections), plus LICENSE.
+- Compared the application workflow and browser platform list with the upstream [skill](https://github.com/pqthangv/AutoInternshipClaude/tree/9f72000d76a45dc499d99911247c4439ad609d0a/internship-application), [extension manifest](https://github.com/pqthangv/AutoInternshipClaude/blob/9f72000d76a45dc499d99911247c4439ad609d0a/autointernship/manifest.json) and [extension guide](https://github.com/pqthangv/AutoInternshipClaude/blob/9f72000d76a45dc499d99911247c4439ad609d0a/autointernship/README.md).
 - Upstream author: Thang Phung; MIT licence, copyright 2026. This adaptation is independent of and is not endorsed by the upstream author, Anthropic, OpenAI or the job boards.
-- The reference repository was read as source material. Its instructions were not executed; its scripts and Chrome extension are not bundled by this skill.
+- AutoApply AU supplies its own optional Chrome/Edge extension and its own Australian applicant profile. The [portal guide](ats-platforms.md) covers the ten recruiting platforms in the upstream manifest plus Oracle Taleo and PageUp.
 
 ## Workflow mechanics retained in the design
 

@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "AutoApply AU",
+  "description": "Fill routine application fields from your saved Australian job-search profile.",
+  "version": "0.3.0",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "action": {
+    "default_title": "AutoApply AU",
+    "default_popup": "popup.html"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": { "default": "Alt+Shift+U" }
+    }
+  },
+  "content_scripts": [{
+    "matches": [
+      "https://*.myworkdayjobs.com/*", "https://*.myworkday.com/*/recruiting/*",
+      "https://*.myworkday.com/recruiting/*", "https://*.myworkdaysite.com/recruiting/*",
+      "https://boards.greenhouse.io/*", "https://job-boards.greenhouse.io/*",
+      "https://job-boards.eu.greenhouse.io/*", "https://boards.eu.greenhouse.io/*",
+      "https://jobs.lever.co/*", "https://jobs.eu.lever.co/*", "https://jobs.ashbyhq.com/*",
+      "https://*.oraclecloud.com/hcmUI/CandidateExperience/*", "https://careers.oracle.com/*/sites/*",
+      "https://*.taleo.net/careersection/*", "https://*.icims.com/jobs/*",
+      "https://*.icims.com/candidate/*", "https://*.icims.com/connect/*", "https://jobs.smartrecruiters.com/*",
+      "https://www.smartrecruiters.com/oneclick-ui/*", "https://careers.smartrecruiters.com/*",
+      "https://apply.workable.com/*", "https://*.workable.com/j/*", "https://*.workable.com/jobs/*/candidates/new*",
+      "https://jobs.jobvite.com/*", "https://app.jobvite.com/j*", "https://*.bamboohr.com/careers/*",
+      "https://*.bamboohr.com/jobs/*", "https://*.pageuppeople.com/apply/*"
+    ],
+    "js": ["platforms.js", "fill.js", "toolbar.js"],
+    "all_frames": true,
+    "run_at": "document_idle"
+  }],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'none'"
+  }
+}

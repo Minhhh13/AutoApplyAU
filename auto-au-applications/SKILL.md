@@ -1,6 +1,6 @@
 ---
 name: auto-au-applications
-description: Find Australian internships, vacationer and graduate programs, apply to a supplied job link, tailor CVs, fill forms, verify submission and track applications locally or in a linked Google Sheet. Use for Australian early-careers searches, individual applications, bounded batches and tracker updates.
+description: Find Australian internships, vacationer and graduate programs on Prosple, SEEK, Indeed, LinkedIn and other boards. Apply from a shortlist or a supplied link, tailor CVs, fill employer forms including Workday and Oracle, verify submission and track applications locally or in Google Sheets.
 license: MIT
 ---
 
@@ -24,6 +24,8 @@ Interpret natural language; do not require a command syntax:
 An instruction to apply to an identified role or bounded batch authorises submission within that scope, including "could you apply to this role for me?" Honour conditions such as "show me before you send." A bare URL, a capability question or a request to assess a role does not by itself authorise sending. Keep prior choices in scope and use the host's permissions.
 
 For a job link, start at that listing and follow its Apply route. Skip discovery across boards. If a redirect opens a directory, EOI or different requisition, locate the exact advertised role or report what is missing. Do not substitute another program. Use the eligibility, preparation, browser and tracking steps below without requesting approval between them.
+
+For a request without links, start the search yourself from the user's criteria and saved profile. Use Prosple, SEEK, Indeed Australia and LinkedIn Jobs when available and relevant. If the user asks to find roles, return verified matches. If they ask to find **and apply** to a bounded set, carry the selected eligible roles into preparation, filling and tracking under the same instruction.
 
 For broad batches, establish the program types, locations, disciplines, target intake/availability, maximum count and exclusions from the request or saved preferences. Ask only for missing details that materially affect the work. Continue independent research while awaiting facts. Do not invent a default discipline, nationality or graduation date.
 
@@ -61,7 +63,7 @@ Run [check_packet.py](scripts/check_packet.py) against the packet and profile af
 
 ## Fill and submit
 
-Read [browser-workflow.md](references/browser-workflow.md) before operating an application form. Work from live observed controls and verified packet answers. Inspect after uploads, parsed-CV autofill, navigation and conditional questions. Ask once for genuinely missing facts and proceed with unrelated applications. Keep one writer per portal session; research and document preparation can run in parallel.
+Read [browser-workflow.md](references/browser-workflow.md) and use the matching [portal instructions](references/ats-platforms.md) for the employer's actual application site. If the optional AutoApply AU extension is present in the controlled browser, use its visible Fill action on each relevant step and inspect what was entered. Otherwise fill from observed controls using the host browser. Check uploads, parsed CV fields, navigation and conditional questions against the packet. Ask once for genuinely missing facts and proceed with unrelated applications. Keep one writer per portal session; research and document preparation can run in parallel.
 
 Before any authorised submission, recheck the employer's application policy, live deadline, eligibility, required answers, uploaded document identity and actual portal values. Use the review screen if provided. Resolve all packet blockers. Claim this attempt by writing `submission-pending` with `--expect-status` set to the last observed `ready` or `filled` state. Only the session whose update succeeded may activate the final control, once. On a failed or uncertain write, leave the portal untouched and reconcile the local state. Record `submitted` only after observing a receipt, confirmation number or unambiguous portal success state for this role. Retain the evidence.
 
