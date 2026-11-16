@@ -4,8 +4,6 @@
   <rect width="1280" height="400" rx="20" fill="#102e25"/>
   <path d="M1040 0h240v400H865L1040 0Z" fill="#173e30"/>
   <path d="m1175 0 105 0v400h-280L1175 0Z" fill="#1b4937"/>
-  <rect x="64" y="54" width="220" height="31" rx="15.5" fill="#dce8bd"/>
-  <text x="174" y="75" text-anchor="middle" fill="#173e30" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2">BUILT FOR AUSTRALIA</text>
   <text x="60" y="170" fill="#f6f5ec" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="700" letter-spacing="-3">AutoApply AU<tspan fill="#dce8bd">.</tspan></text>
   <text x="64" y="218" fill="#f6f5ec" font-family="Arial, Helvetica, sans-serif" font-size="25">Internships. Vacationers. Graduate programs.</text>
   <text x="64" y="257" fill="#b8cfc2" font-family="Arial, Helvetica, sans-serif" font-size="19">A reusable application workflow for Codex + Claude Code.</text>
