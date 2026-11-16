@@ -41,8 +41,10 @@ class DistributionTests(unittest.TestCase):
             "CLAUDE_CONFIG_DIR": str(self.base / "custom-claude")})
         self.assertEqual(self.base / "custom-codex/skills/auto-au-applications", overrides[0]["target"])
         project = self.targets(scope="project", project_dir=self.base)
-        self.assertEqual(self.base / ".agents/skills/auto-au-applications", project[0]["target"])
-        self.assertEqual(self.base / ".claude/skills/auto-au-applications", project[1]["target"])
+        # Project roots are canonicalised, including macOS /var and Windows short-name aliases.
+        project_root = self.base.resolve()
+        self.assertEqual(project_root / ".agents/skills/auto-au-applications", project[0]["target"])
+        self.assertEqual(project_root / ".claude/skills/auto-au-applications", project[1]["target"])
 
     def test_dry_run_creates_nothing_and_real_install_has_all_published_files(self):
         targets = self.targets()
