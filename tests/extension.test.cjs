@@ -5,16 +5,18 @@ const path = require("node:path");
 const { before, after, test } = require("node:test");
 const { chromium } = require("playwright");
 const clickPopupFill = require("./extension-action.cjs");
+const registerGraduateForms = require("./graduate-forms/score.cjs");
 
-const extensionPath = path.resolve(__dirname, "../browser-extension");
+const extensionPath = process.env.AUTOAPPLY_EXTENSION_PATH || path.resolve(__dirname, "../browser-extension");
 const profile = {
   schema_version: 1,
   person: {
     legal_name: "Alex Kim Tran", given_name: "Alex Kim", family_name: "Tran",
+    preferred_name: "Alex", phone: "0400 000 019", address_line_1: "18 Example Street",
     email: "alex@example.invalid", city: "Darwin", state_or_territory: "NT",
     postcode: "0800", country: "Australia", linkedin_url: "https://example.invalid/alex",
   },
-  education: [{ institution: "Example University", degree: "Bachelor of Science" }],
+  education: [{ institution: "Example University", degree: "Bachelor of Science", major: "Mathematics" }],
   work_rights: { status_in_users_words: "Private example" },
   documents: { master_cv: "private-cv.pdf" },
 };
@@ -105,6 +107,8 @@ const portals = [
 
 const fillButton = page => page.locator("#autoapply-au-toolbar #autoapply-fill");
 const field = (page, key) => page.locator(`[data-check="${key}"]`);
+
+registerGraduateForms(loadFixture, fillButton);
 
 for (const [name, url, attributes, expected] of portals) {
   test(`${name} fills its portal control from the imported profile and preserves existing answers`, async t => {

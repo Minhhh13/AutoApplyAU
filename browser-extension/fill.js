@@ -9,6 +9,7 @@
     phone: [
       "phone",
       "phone number",
+      "contact phone number",
       "mobile",
       "mobile number",
       "mobile phone",
@@ -17,7 +18,7 @@
     ],
     addressLine1: ["address line 1", "street address", "address 1"],
     addressLine2: ["address line 2", "address 2"],
-    city: ["city", "town", "suburb", "city or suburb", "city suburb", "city town", "location city"],
+    city: ["city", "town", "suburb", "residential suburb", "city or suburb", "city suburb", "city town", "location city"],
     state: [
       "state",
       "state or territory",
@@ -26,7 +27,7 @@
       "province state",
       "state province region",
     ],
-    postcode: ["postcode", "post code", "postal code", "zip code", "zip postal code", "postal zip code"],
+    postcode: ["postcode", "residential postcode", "post code", "postal code", "zip code", "zip postal code", "postal zip code"],
     country: ["country", "country of residence", "country region of residence"],
     linkedin: ["linkedin", "linkedin url", "linkedin profile", "linkedin profile url"],
     website: ["website", "personal website", "portfolio", "portfolio url", "portfolio website"],
@@ -35,11 +36,12 @@
       "school",
       "university",
       "school or university",
+      "university institution",
       "university name",
       "institution",
       "institution name",
     ],
-    degree: ["degree", "degree name", "qualification name"],
+    degree: ["degree", "degree name", "degree title", "qualification name"],
     major: ["major", "field of study", "discipline", "major field of study"],
   };
   const autocompleteKeys = {
@@ -57,7 +59,18 @@
     "country-name": "country",
   };
   const educationKeys = new Set(["institution", "degree", "major"]);
-  const states = {
+  // Portals may display a known code beside its full name in either order.
+  // Enumerating complete labels preserves the exact-match rule for ambiguous options.
+  function geographicAliases(codes) {
+    const aliases = new Map();
+    for (const [code, name] of Object.entries(codes)) {
+      for (const label of [code, name, `${name} ${code}`, `${code} ${name}`]) {
+        aliases.set(label, name);
+      }
+    }
+    return aliases;
+  }
+  const stateAliases = geographicAliases({
     nsw: "new south wales",
     vic: "victoria",
     qld: "queensland",
@@ -66,7 +79,9 @@
     tas: "tasmania",
     act: "australian capital territory",
     nt: "northern territory",
-  };
+  });
+  const countryAliases = geographicAliases({ au: "australia", aus: "australia" });
+  const geographicChoices = new Map([["state", stateAliases], ["country", countryAliases]]);
   const sensitive =
     /\b(password|passcode|verify|verification|otp|one time|sign in|log in|authenticat\w*|consent|certif\w*|signature|declare|declaration|attest\w*|disclos\w*|sponsor\w*|work rights|right to work|visa|citizenship|nationality|birth|gender|pronouns?|veteran|disabilit\w*|diversity|ethnic\w*|race|marital|religion|tax|bank|passport|marketing|subscribe|emergency|referee|reference|recommender|supervisor|manager|previous employer|assessment)\b/;
   const otherParty =
@@ -251,9 +266,17 @@
     const actual = normal(label),
       expected = normal(value);
     if (actual === expected) return true;
-    if (key === "state") return (states[actual] || actual) === (states[expected] || expected);
-    if (key === "country") return [actual, expected].every((v) => ["au", "australia", "aus"].includes(v));
-    return false;
+    const aliases = geographicChoices.get(key);
+    return !!aliases && aliases.has(actual) && aliases.get(actual) === aliases.get(expected);
+  }
+
+  function nativeValueAgrees(key, storedValue, profileValue) {
+    const aliases = geographicChoices.get(key);
+    if (!aliases) return true;
+    // An ATS can use arbitrary record IDs. Only veto a value we can positively decode.
+    const stored = normal(storedValue);
+    const name = aliases.get(key === "state" ? stored.replace(/^au /, "") : stored);
+    return !name || name === (aliases.get(normal(profileValue)) || normal(profileValue));
   }
 
   function writeNative(el, value) {
@@ -395,7 +418,10 @@
   function hasValue(el) {
     if (el.tagName === "SELECT") {
       const selected = el.options[el.selectedIndex];
-      return !!selected && !placeholder(selected.label);
+      if (!selected || placeholder(selected.label)) return false;
+      // Portals also use disabled, empty options with field-specific instructions.
+      const prompt = /^(?:(?:please )?(?:pick|select|choose)\b|start by (?:picking|selecting|choosing)\b)/;
+      return !(selected.disabled && selected.value === "" && prompt.test(normal(selected.label)));
     }
     if (custom(el)) return hasCustomValue(el);
     if (el.type === "radio") return el.checked;
@@ -455,7 +481,10 @@
           );
           if (choices.length === 1) {
             const choice = choices[0];
-            if ([...el.options].filter((o) => o.value === choice.value).length === 1)
+            if (
+              nativeValueAgrees(key, choice.value, value) &&
+              [...el.options].filter((o) => o.value === choice.value).length === 1
+            )
               ok = writeNative(el, choice.value);
           }
         } else if (custom(el)) {

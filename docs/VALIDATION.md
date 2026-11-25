@@ -37,6 +37,8 @@ The Chromium tests load the unpacked extension, import a fictional profile throu
 
 Other browser tests cover a Workday dropdown, an Oracle Recruiting Cloud selection grid and an employer page with an embedded Greenhouse form. They check that the extension preserves existing answers and leaves unrelated fields and frames alone.
 
+On 25 November 2026, the same 25 synthetic Australian graduate forms ran before and after three autofill fixes. Correct profile fills rose from 51/63 to 63/63. All 65 checks for fields left for review passed in both runs. [Per-form and field-level scorecard](graduate-form-scorecard.md)
+
 On 16 November 2026 we also opened public employer pages in a signed-out browser. We saved the rendered forms for Deputy on Lever and Fivetran on Greenhouse, then filled fictional details in **offline copies** with external requests blocked. The extension filled six fields on the Lever copy, including LinkedIn, GitHub and portfolio links, and twelve on the Greenhouse copy. The Workday and Oracle Recruiting Cloud checks reached public listings. Those visits did not exercise authenticated application steps or send applications.
 
 For a local run, use Node.js 22+, then run `npm ci`, `npx playwright install chromium` and `npm run test:browser` from the repository root. The test dependencies are separate from the released extension.
