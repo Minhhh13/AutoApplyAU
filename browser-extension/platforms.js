@@ -22,6 +22,8 @@
     { id: "jobvite", name: "Jobvite", host: /^app\.jobvite\.com$/, path: /^\/j(?:\/|$)/i },
     { id: "bamboohr", name: "BambooHR", host: /(?:^|\.)bamboohr\.com$/, path: /^\/(?:careers|jobs)(?:\/|$)/i },
     { id: "pageup", name: "PageUp", host: /(?:^|\.)pageuppeople\.com$/, path: /^\/apply\//i },
+    { id: "breezy", name: "Breezy HR", host: /^[a-z0-9-]+\.breezy\.hr$/, path: /^\/p\/[a-z0-9-]+\/apply\/?$/i },
+    { id: "scout", name: "Scout Talent", host: /(?:^|\.)applynow\.net\.au$/, path: /^\/jobs\/[^/]+\/?$/i },
   ];
 
   function detect(location) {
@@ -71,11 +73,41 @@
 
   const attributeNames = ["name", "id", "data-automation-id", "data-ui", "data-qa", "data-testid"];
 
+  // Breezy's personal details use an Angular model and a heading next to each input.
+  // Similar-looking freeform screening questions are stored in different models.
+  const breezyPersonal = new Map([
+    ["cName", ["candidate.name", "fullName"]],
+    ["cEmail", ["candidate.email_address", "email"]],
+    ["cPhoneNumber", ["candidate.phone_number", "phone"]],
+    ["cAddress", ["candidate.address", "fullAddress"]],
+  ]);
+
+  const scoutAddress = new Map([
+    ["street1", ["street", "addressLine1"]],
+    ["street2", ["street cont", "addressLine2"]],
+    ["suburb", ["city town or suburb", "city"]],
+    ["postcode", ["postcode or zipcode", "postcode"]],
+    ["state_id", ["state region or province", "state"]],
+  ]);
+
+  function scopedLabelKey(element, platformId, label) {
+    if (platformId === "breezy" && label === "address" && fieldKey(element, platformId) === "fullAddress")
+      return "fullAddress";
+    if (platformId !== "scout") return null;
+    const match = /^application\[candidate_attributes\]\[address_attributes\]\[(\w+)\]$/.exec(element.name);
+    const field = match && scoutAddress.get(match[1]);
+    return field && field[0] === label ? field[1] : null;
+  }
+
   function identifiers(element) {
     return attributeNames.map((attribute) => element.getAttribute(attribute)).filter(Boolean);
   }
 
   function isHistoryContact(element, platformId) {
+    if (platformId === "breezy") {
+      const personal = breezyPersonal.get(element.name);
+      return !!personal && element.getAttribute("ng-model") !== personal[0];
+    }
     const names = identifiers(element);
     if (platformId === "workday") {
       return names.some((name) => /(?:workExperience|education|certification)[-_]\d+[-_.:]/i.test(name));
@@ -89,6 +121,10 @@
 
   function fieldKey(element, platformId) {
     if (!knownIds.has(platformId) || isHistoryContact(element, platformId)) return null;
+    if (platformId === "breezy") {
+      const field = breezyPersonal.get(element.name);
+      return field && element.tagName === "INPUT" ? field[1] : null;
+    }
     const matches = new Set();
     for (let identifier of identifiers(element)) {
       if (platformId === "taleo") {
@@ -107,5 +143,5 @@
     return matches.size === 1 ? matches.values().next().value : null;
   }
 
-  globalThis.AutoApplyPlatforms = Object.freeze({ detect, fieldKey, isHistoryContact });
+  globalThis.AutoApplyPlatforms = Object.freeze({ detect, fieldKey, scopedLabelKey, isHistoryContact });
 })();

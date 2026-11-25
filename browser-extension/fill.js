@@ -5,10 +5,11 @@
     givenName: ["first name", "given name", "legal first name", "first name legal", "given names"],
     familyName: ["last name", "surname", "family name", "legal last name"],
     preferredName: ["preferred name", "preferred first name"],
-    email: ["email", "email address", "personal email", "personal email address", "contact email"],
+    email: ["email", "e mail", "email address", "personal email", "personal email address", "contact email"],
     phone: [
       "phone",
       "phone number",
+      "phone number with country code",
       "contact phone number",
       "mobile",
       "mobile number",
@@ -40,6 +41,7 @@
       "university name",
       "institution",
       "institution name",
+      "which university do you currently attend or most recently attended",
     ],
     degree: ["degree", "degree name", "degree title", "qualification name"],
     major: ["major", "field of study", "discipline", "major field of study"],
@@ -85,10 +87,13 @@
   const sensitive =
     /\b(password|passcode|verify|verification|otp|one time|sign in|log in|authenticat\w*|consent|certif\w*|signature|declare|declaration|attest\w*|disclos\w*|sponsor\w*|work rights|right to work|visa|citizenship|nationality|birth|gender|pronouns?|veteran|disabilit\w*|diversity|ethnic\w*|race|marital|religion|tax|bank|passport|marketing|subscribe|emergency|referee|reference|recommender|supervisor|manager|previous employer|assessment)\b/;
   const otherParty =
-    /\b(reference[s]?|referee[s]?|recommender|recruiter|emergency contact|supervisor|work experience|work history|employment history|previous employer|former employer|employment record|job history)\b/;
+    /\b(references?|referees?|recommenders?|recruiter|emergency contacts?|supervisor|work experience|work history|employment history|previous employers?|former employers?|employment record|job history)\b/;
   const sector = /\b(education|institution|university|school|qualification|academic history)\b/;
   const ancillary =
     /\b(newsletter|talent (?:community|pool|network)|job alerts?|job search|search jobs|live chat|chatbot|contact us|mailing list|subscribe)\b/;
+  const sectionHeading = ":scope > :is(h1,h2,h3,h4,h5,h6,[role=heading])";
+  const scopedHeading =
+    /^(?:(?:professional|personal|academic|primary|secondary|first|second|third) )?(?:references?|referees?|recommenders?|emergency contacts?|previous employers?|former employers?|work experience|work history|employment history|education)(?: (?:\d+|contact|details|information|history))*$/;
   const fieldSelector =
     "input, textarea, select, [role=combobox], [aria-haspopup=listbox], [aria-haspopup=grid]";
   const normal = (value) =>
@@ -108,6 +113,23 @@
       normal(value),
     );
   const textOf = (el) => el?.innerText?.trim() || el?.textContent?.trim() || "";
+  const cleanLabel = (value) => normal(value).replace(/\b(?:optional|required)\b/g, "").trim();
+
+  function adjacentCaption(el) {
+    const container = el.parentElement;
+    if (!container || el.closest("footer, [role=contentinfo]") || container.querySelectorAll(fieldSelector).length !== 1)
+      return "";
+    // Pegboard and Lever render the caption and its single control as siblings.
+    if (container.matches(".formfieldDiv") && el.previousElementSibling?.matches(".formFieldLabel"))
+      return textOf(el.previousElementSibling);
+    if (
+      container.matches(".application-field") &&
+      container.closest("li.application-question") &&
+      container.previousElementSibling?.matches(".application-label")
+    )
+      return textOf(container.previousElementSibling);
+    return "";
+  }
 
   function fieldLabels(el) {
     const ids = (el.getAttribute("aria-labelledby") || "").split(/\s+/).filter(Boolean);
@@ -123,13 +145,25 @@
       el.getAttribute("aria-label"),
       ...labels,
     ];
+    if (!raw.some(Boolean)) raw.push(adjacentCaption(el));
     return raw
       .filter(Boolean)
-      .map((value) =>
-        normal(value)
-          .replace(/\b(?:optional|required)\b/g, "")
-          .trim(),
-      )
+      .map(value => {
+        const label = cleanLabel(value);
+        if (
+          (label === "first" || label === "last") &&
+          cleanLabel(textOf(el.closest("fieldset")?.querySelector(":scope > legend"))) === "name"
+        )
+          return label + " name";
+        if (
+          label === "where are you currently located" &&
+          (el.type === "text" || el.tagName === "TEXTAREA") &&
+          !custom(el) &&
+          !el.matches("[list],[aria-autocomplete]")
+        )
+          return "city";
+        return label;
+      })
       .filter(Boolean);
   }
 
@@ -152,25 +186,29 @@
         ];
         if (purpose.some((label) => ancillary.test(normal(label)))) parts.push("ancillary form");
       }
-      if (node.tagName === "DIV") {
-        const title = normal(
-          textOf(node.querySelector(":scope > h2,:scope > h3,:scope > h4,:scope > [role=heading]")),
-        );
-        if (
-          /^(?:(?:professional|personal) )?(?:references?|referees?|recommender|emergency contact|work experience|employment history|education)(?: details| information| history)?$/.test(
-            title,
+      const group = node.matches("fieldset, section, [role=group]");
+      if (group || node.matches("div, form, main, article")) {
+        // A narrower subheading such as "Contact details" still belongs to "Referee 1".
+        // A later heading of equal or higher rank starts a new section.
+        let level = Infinity;
+        for (const heading of [...node.querySelectorAll(sectionHeading)].reverse()) {
+          if (!(heading.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)) continue;
+          const rank = Number(heading.getAttribute("aria-level") || heading.tagName.slice(1)) || 2;
+          if (rank >= level) continue;
+          const title = normal(textOf(heading));
+          if (
+            scopedHeading.test(title) ||
+            (group && (sensitive.test(title) || otherParty.test(title) || sector.test(title)))
           )
-        )
-          parts.push(title);
-        if (ancillary.test(title)) parts.push("ancillary form");
+            parts.push(title);
+          if (ancillary.test(title)) parts.push("ancillary form");
+          level = rank;
+        }
       }
-      if (
-        node !== el &&
-        (node.tagName === "FIELDSET" || node.tagName === "SECTION" || node.getAttribute("role") === "group")
-      ) {
+      if (node !== el && group) {
         parts.push(
           node.getAttribute("aria-label") || "",
-          textOf(node.querySelector(":scope > legend, :scope > h2, :scope > h3, :scope > h4")),
+          textOf(node.querySelector(":scope > legend")),
         );
         for (const id of (node.getAttribute("aria-labelledby") || "").split(/\s+/)) {
           if (id) parts.push(textOf(document.getElementById(id)));
@@ -228,12 +266,22 @@
   }
 
   function resolveKey(el, platformId, labels, context) {
+    const mapped = globalThis.AutoApplyPlatforms.fieldKey(el, platformId);
+    if (platformId === "breezy" && mapped) {
+      const heading = el.previousElementSibling;
+      if (heading?.tagName === "H3") labels = [...labels, normal(textOf(heading))];
+      if (mapped === "phone" && el.form) {
+        const notices = el.form.querySelectorAll('input[name="smsConsent"], [ng-bind="getSmsConsentText()"]');
+        if ([...notices].some((node) => visible(node) || [...(node.labels || [])].some(visible))) return null;
+      }
+    }
     const descriptive = [context, ...labels, normal(el.getAttribute("placeholder")), normal(el.autocomplete)];
     if (descriptive.some((text) => sensitive.test(text) || otherParty.test(text))) return null;
     if (ancillary.test(context) || context.includes("ancillary form")) return null;
     if (globalThis.AutoApplyPlatforms.isHistoryContact?.(el, platformId)) return null;
-    const mapped = globalThis.AutoApplyPlatforms.fieldKey(el, platformId);
-    const recognised = labels.map((label) => labelKey.get(label)).filter(Boolean);
+    const recognised = labels.map((label) =>
+      labelKey.get(label) || globalThis.AutoApplyPlatforms.scopedLabelKey(el, platformId, label),
+    ).filter(Boolean);
     // Unknown wording can materially change an otherwise familiar vendor identifier.
     if (
       labels.length &&
@@ -254,9 +302,9 @@
     if (sector.test(context) && !educationKeys.has(key)) return null;
     // Greenhouse's phone-country picker is labelled simply "Country". Its value depends on the phone number.
     if (
-      platformId === "greenhouse" &&
       key === "country" &&
-      !labels.some((label) => label.includes("residence"))
+      ((platformId === "greenhouse" && !labels.some((label) => label.includes("residence"))) ||
+        el.closest(".phone-input__country"))
     )
       return null;
     return key;
@@ -287,6 +335,76 @@
     el.dispatchEvent(new Event("input", { bubbles: true }));
     el.dispatchEvent(new Event("change", { bubbles: true }));
     return el.isConnected && el.value === value;
+  }
+
+  function compactPhone(value) {
+    return /^\+?[\d ().\t-]+$/.test(value) ? value.replace(/[^\d+]/g, "") : "";
+  }
+
+  function internationalPhone(compact, country) {
+    if (/^\+[1-9]\d{6,14}$/.test(compact)) return compact;
+    if (/^04\d{8}$/.test(compact) && countryAliases.get(normal(country)) === "australia") {
+      return "+61" + compact.slice(1);
+    }
+    return "";
+  }
+
+  function displaysAustralianDial(control) {
+    const container = control.closest('[class*="value-container" i],[class*="valueContainer" i]');
+    return renderedValues(control).includes("+61") && !!container?.querySelector(".iti__au");
+  }
+
+  async function writePhone(el, profile, platformId, startUrl, reviewedFields, filled) {
+    // A whole profile number cannot answer just the area code, local number or extension.
+    if (/\btel-/.test(el.autocomplete || "")) return false;
+    const compact = compactPhone(profile.phone);
+    const international = internationalPhone(compact, profile.country);
+    const auMobile = /^\+614\d{8}$/.test(international);
+    const dialButton = el.closest(".iti")?.querySelector(".iti__selected-country");
+    const dialControl = el.closest("fieldset.phone-input")?.querySelector(".phone-input__country input[role=combobox]");
+    const withCode = fieldLabels(el).includes("phone number with country code");
+    let value = profile.phone;
+    if (dialButton || dialControl || withCode) {
+      if (!international) return false;
+      // A shared calling prefix, such as +1, is insufficient to assign a country to a paired selector.
+      if ((dialButton || dialControl) && !auMobile) return false;
+      // A single confirmed number may select an empty dial country. Never replace a conflicting choice.
+      if (dialButton && !dialButton.querySelector(".iti__au,.iti__globe")) return false;
+      if (dialControl && hasCustomValue(dialControl) && !displaysAustralianDial(dialControl)) return false;
+      value = international;
+    } else {
+      const hint = textOf(el.closest("li")?.querySelector(":scope > .inline-hints"));
+      if (/\bdigits only\b/i.test(hint)) {
+        if (!compact || (compact.startsWith("+") && !hint.includes("+"))) return false;
+        value = compact;
+      }
+    }
+    if (el.maxLength >= 0 && value.length > el.maxLength) return false;
+    const originallyBlankDial = dialControl && !hasCustomValue(dialControl);
+    const form = el.form;
+    const sameField = () => location.href === startUrl && el.form === form && editable(el) && !authFlow(el) &&
+      resolveKey(el, platformId, fieldLabels(el), contextOf(el)) === "phone";
+    writeNative(el, value);
+    // Teamtailor also accepts the international digits and restores the plus during its input event.
+    if (!el.value && withCode && sameField() &&
+        el.matches('[data-controller~="phone-input"][data-phone-input-initialized-value=true]')) {
+      writeNative(el, international.slice(1));
+    }
+    const written = el.value;
+    if (dialControl) await new Promise(resolve => setTimeout(resolve, 0));
+    if (!sameField()) return false;
+    const displayed = compactPhone(el.value);
+    const australianDial = auMobile && !!el.closest(".iti")?.querySelector(".iti__selected-country .iti__au");
+    const agrees = el.value === value || (!!displayed && displayed === compactPhone(value)) ||
+      (australianDial && [international.slice(3), "0" + international.slice(3)].includes(displayed));
+    if (!agrees || !el.validity.valid || el.getAttribute("aria-invalid") === "true" ||
+        (dialButton && !australianDial) || (dialControl && !displaysAustralianDial(dialControl))) {
+      // A mask can truncate our write. Restore the initially blank field only while it still holds that write.
+      if (written && el.value === written) writeNative(el, "");
+      return false;
+    }
+    if (originallyBlankDial && reviewedFields.delete(dialControl)) filled.push("phone dialling country");
+    return true;
   }
 
   function custom(el) {
@@ -428,18 +546,48 @@
     return !!el.value?.trim();
   }
 
+  function fullAustralianAddress(profile) {
+    const { addressLine1, addressLine2, city, state, postcode, country } = profile;
+    if (!countryAliases.has(normal(country)) ||
+        ![addressLine1, city, state, postcode].every((value) => typeof value === "string" && value.trim()))
+      return undefined;
+    return [addressLine1, addressLine2, `${city} ${state} ${postcode}`, country].filter(Boolean).join(", ");
+  }
+
+  // Scout populates the state dropdown in response to the selected country. Some
+  // templates replace the select itself, so keep the lookup within the original form.
+  const scoutStateName = "application[candidate_attributes][address_attributes][state_id]";
+  const scoutCountryName = "application[candidate_attributes][address_attributes][country_id]";
+  async function availableScoutState(form, country, startUrl) {
+    if (!form || !countryAliases.has(normal(country))) return null;
+    for (let attempt = 0; attempt < 12 && location.href === startUrl && form.isConnected; attempt++) {
+      const countrySelect = form.elements.namedItem(scoutCountryName);
+      if (!countrySelect?.matches?.("select") ||
+          !exactChoice("country", countrySelect.selectedOptions[0]?.label, country)) return null;
+      const state = form.elements.namedItem(scoutStateName);
+      if (state?.matches?.("select") && editable(state) && state.options.length > 1) return state;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    return null;
+  }
+
   let running = false;
-  async function run(profile) {
+  async function run(savedProfile) {
     if (running) throw new Error("A fill is already running in this tab.");
     const platform = globalThis.AutoApplyPlatforms.detect(location, document);
+    // Derive this value at fill time so existing saved profiles also work.
+    const profile = platform.id === "breezy"
+      ? { ...savedProfile, fullAddress: fullAustralianAddress(savedProfile) } : savedProfile;
     const startUrl = location.href;
     const filled = [];
+    const reviewedFields = new Set();
     let review = 0;
     running = true;
     try {
-      const fields = [...document.querySelectorAll(fieldSelector)].filter(editable);
-      const pending = [],
-        educationCounts = new Map();
+      const fields = [...document.querySelectorAll(fieldSelector)].filter((el) =>
+        editable(el) || (platform.id === "scout" && el.name === scoutStateName && visible(el)),
+      );
+      const pending = [], dependentStates = [], educationCounts = new Map();
       for (const el of fields) {
         if (el.type === "radio") continue;
         const labels = fieldLabels(el);
@@ -453,13 +601,22 @@
           typeof profile[key] !== "string" ||
           !profile[key].trim()
         ) {
+          reviewedFields.add(el);
+          continue;
+        }
+        if (platform.id === "scout" && el.name === scoutStateName && key === "state")
+          dependentStates.push({ el, key, form: el.form });
+        else pending.push({ el, key });
+      }
+      for (const candidate of [...pending, ...dependentStates]) {
+        const { key } = candidate;
+        const el = candidate.form !== undefined
+          ? await availableScoutState(candidate.form, profile.country, startUrl) : candidate.el;
+        if (location.href !== startUrl) break;
+        if (!el) {
           review++;
           continue;
         }
-        pending.push({ el, key });
-      }
-      for (const { el, key } of pending) {
-        if (location.href !== startUrl) break;
         if (!editable(el) || hasValue(el) || authFlow(el)) continue;
         if (resolveKey(el, platform.id, fieldLabels(el), contextOf(el)) !== key) {
           review++;
@@ -490,7 +647,8 @@
         } else if (custom(el)) {
           ok = await pickCustom(el, key, value, platform.id, startUrl);
         } else if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-          if (el.maxLength < 0 || value.length <= el.maxLength) ok = writeNative(el, value);
+          if (key === "phone") ok = await writePhone(el, profile, platform.id, startUrl, reviewedFields, filled);
+          else if (el.maxLength < 0 || value.length <= el.maxLength) ok = writeNative(el, value);
         }
         if (ok) filled.push(key);
         else review++;
@@ -538,13 +696,13 @@
         }
         review++;
       }
-      return { platform: platform.name, platformId: platform.id, filled, review };
+      return { platform: platform.name, platformId: platform.id, filled, review: review + reviewedFields.size };
     } finally {
       running = false;
     }
   }
   function describe(result) {
-    const labels = [...new Set(result.filled)].map((key) => names[key]?.[0] || key);
+    const labels = [...new Set(result.filled)].map((key) => key === "fullAddress" ? "full address" : names[key]?.[0] || key);
     const summary =
       result.platform +
       " · Filled " +

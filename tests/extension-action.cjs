@@ -11,11 +11,16 @@ async function clickPopupFill(page, popupUrl) {
     const tabs = await browserSession.send("Target.getTargets", { filter: [{ type: "tab" }] });
     const tab = tabs.targetInfos.find(target => target.url === page.url());
     assert(tab, "Fictional employer tab is open");
+    // Chrome can retain a previous action popup briefly after its application tab closes.
+    // A normal extension settings tab can also have this URL. Only attach to the new target.
+    const existing = await browserSession.send("Target.getTargets");
+    const existingIds = new Set(existing.targetInfos.map(target => target.targetId));
     await browserSession.send("Extensions.triggerAction", { id: extensionId, targetId: tab.targetId });
     let popup;
     for (let i = 0; i < 50 && !popup; i++) {
       const targets = await browserSession.send("Target.getTargets");
-      popup = targets.targetInfos.find(target => target.type === "page" && target.url === popupUrl);
+      popup = targets.targetInfos.find(target =>
+        target.type === "page" && target.url === popupUrl && !existingIds.has(target.targetId));
       if (!popup) await delay(30);
     }
     assert(popup, "The real browser action opened its popup");
@@ -63,6 +68,15 @@ async function clickPopupFill(page, popupUrl) {
         button: "left", clickCount: 1,
       });
     }
+    for (let i = 0; i < 160; i++) {
+      const { result } = await send("Runtime.evaluate", {
+        expression: "document.querySelector('#fill:enabled') && document.querySelector('#status')?.textContent.trim()",
+        returnByValue: true,
+      });
+      if (result.value) return result.value;
+      await delay(30);
+    }
+    assert.fail("The popup did not report a completed fill");
   } finally {
     await browserSession.detach();
   }

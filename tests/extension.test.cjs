@@ -108,7 +108,7 @@ const portals = [
 const fillButton = page => page.locator("#autoapply-au-toolbar #autoapply-fill");
 const field = (page, key) => page.locator(`[data-check="${key}"]`);
 
-registerGraduateForms(loadFixture, fillButton);
+registerGraduateForms(loadFixture, fillButton, page => clickPopupFill(page, extensionUrl));
 
 for (const [name, url, attributes, expected] of portals) {
   test(`${name} fills its portal control from the imported profile and preserves existing answers`, async t => {

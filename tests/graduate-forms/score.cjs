@@ -25,7 +25,7 @@ async function clickAndWait(page, fillButton) {
   assert.match(await status.innerText(), /Filled \d+ field|Open an application step/);
 }
 
-module.exports = function registerGraduateForms(loadFixture, fillButton) {
+module.exports = function registerGraduateForms(loadFixture, fillButton, fillFromPopup) {
   const observations = [];
   assert.deepEqual(forms.map(form => form.id),
     Array.from({ length: 25 }, (_, i) => String(i + 1).padStart(2, "0")));
@@ -65,11 +65,17 @@ module.exports = function registerGraduateForms(loadFixture, fillButton) {
       assert.deepEqual(failures, [], "Field outcomes differed from the fixture expectations");
     });
   }
-  const guards = require("./guards.cjs");
+  const guards = [
+    ...require("./guards.cjs"),
+    ...require("./portal-contact-guards.cjs"),
+    ...require("./other-contact-guards.cjs"),
+    ...require("./phone-guards.cjs"),
+  ];
   for (const guard of guards) {
     test(guard.name, async t => {
-      const page = await loadFixture(t, "https://fixture.wd3.myworkdayjobs.com/en-AU/External/job/Guard/apply", guard.html);
-      await clickAndWait(page, fillButton);
+      const page = await loadFixture(t, guard.url || "https://fixture.wd3.myworkdayjobs.com/en-AU/External/job/Guard/apply", guard.html);
+      if (guard.url) assert.match(await fillFromPopup(page), /Filled \d+ field/);
+      else await clickAndWait(page, fillButton);
       await guard.verify(page);
       assert.equal(await page.evaluate(() => window.submits), 0);
     });
